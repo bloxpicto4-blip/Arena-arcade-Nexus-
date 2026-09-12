@@ -1,0 +1,2124 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06070d">
+<title>NEXUS HUB — Play. Read. Explore.</title>
+<meta name="description" content="NEXUS HUB is a personal universe for games, stories, books and digital creations. Designed and programmed by Abdlerhman Mohamed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   NEXUS HUB — Design System
+   Designed and programmed by Abdlerhman Mohamed
+   ============================================================ */
+:root{
+  --a:#22d3ee; --b:#8b5cf6; --c:#f472b6;
+  --bg:#06070d; --bg2:#0b0f1d;
+  --text:#e9edf7; --muted:#98a2b8; --dim:#5f6880;
+  --glass:rgba(255,255,255,.035); --glass2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.16);
+  --r:16px; --r-lg:24px; --r-sm:10px;
+  --shadow:0 20px 60px -20px rgba(0,0,0,.75);
+  --nav-h:72px;
+  --font-head:'Outfit',system-ui,sans-serif;
+  --font-body:'Manrope',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body); background:var(--bg); color:var(--text);
+  min-height:100vh; overflow-x:hidden; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+body.locked{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+h1,h2,h3,h4{font-family:var(--font-head);font-weight:700;letter-spacing:-.02em;line-height:1.1}
+::selection{background:color-mix(in srgb,var(--a) 40%,transparent);color:#fff}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:10px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- Dynamic Atmosphere ---------- */
+#bg{
+  position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  background:
+    radial-gradient(1200px 800px at 20% -10%, color-mix(in srgb,var(--b) 16%,transparent), transparent 65%),
+    radial-gradient(1000px 700px at 110% 30%, color-mix(in srgb,var(--a) 12%,transparent), transparent 60%),
+    radial-gradient(900px 900px at 50% 110%, color-mix(in srgb,var(--c) 10%,transparent), transparent 70%),
+    linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);
+  transition:background .8s ease;
+}
+#bg .grid{
+  position:absolute; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse at 50% 10%,#000 0%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 10%,#000 0%,transparent 80%);
+}
+.blob{
+  position:absolute;border-radius:50%;filter:blur(90px);opacity:.42;
+  mix-blend-mode:screen;animation:float 26s ease-in-out infinite alternate;will-change:transform;
+}
+.blob.b1{background:var(--a)}
+.blob.b2{background:var(--b);animation-duration:32s}
+.blob.b3{background:var(--c);animation-duration:38s}
+@keyframes float{
+  0%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(4vw,-5vh) scale(1.08)}
+  100%{transform:translate(-3vw,4vh) scale(.96)}
+}
+.shape{position:absolute;border:1px solid rgba(255,255,255,.09);opacity:.7;animation:spin linear infinite}
+.shape.ring{border-radius:50%}
+.shape.ring::after{content:'';position:absolute;inset:18%;border-radius:50%;border:1px dashed rgba(255,255,255,.08)}
+.shape.sq{border-radius:16%;transform:rotate(12deg)}
+.shape.dot{background:var(--a);border:0;box-shadow:0 0 30px var(--a);opacity:.5;animation:pulse 5s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.8;transform:scale(1.1)}}
+#particles{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- Loader ---------- */
+#loader{
+  position:fixed;inset:0;z-index:1000;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  transition:opacity .5s ease,visibility .5s ease;
+}
+#loader.hide{opacity:0;visibility:hidden;pointer-events:none}
+.nlogo{width:82px;height:82px;position:relative}
+.nlogo svg{width:100%;height:100%;overflow:visible}
+.nlogo .ring{fill:none;stroke:rgba(255,255,255,.08);stroke-width:1.5}
+.nlogo .ring2{fill:none;stroke:url(#lg);stroke-width:2;stroke-dasharray:70 200;animation:orbit 2s linear infinite;transform-origin:center}
+@keyframes orbit{to{stroke-dashoffset:-270}}
+.nlogo .n{
+  fill:none;stroke:url(#lg);stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:160;stroke-dashoffset:160;
+  animation:draw 1.1s cubic-bezier(.6,0,.2,1) forwards, glow 2.4s ease-in-out .8s infinite;
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 4px var(--a))}50%{filter:drop-shadow(0 0 18px var(--b))}}
+#loader .word{font-family:var(--font-head);font-weight:800;letter-spacing:.32em;font-size:1rem;opacity:0;animation:fadeup .8s ease .3s forwards}
+#loader .signal{font-size:.7rem;letter-spacing:.2em;color:var(--dim);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;opacity:0;animation:fadeup .8s ease .5s forwards}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- Navigation ---------- */
+#nav{
+  position:sticky;top:0;z-index:100;height:var(--nav-h);display:flex;align-items:center;
+  backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);
+  background:rgba(6,7,13,.65);border-bottom:1px solid var(--border);
+}
+.wrap{width:min(1240px,calc(100% - 2.5rem));margin:0 auto}
+.navin{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--font-head);font-weight:800;letter-spacing:.16em;font-size:.98rem}
+.brand .mark{
+  width:36px;height:36px;border-radius:10px;display:grid;place-items:center;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--a) 25%,transparent),color-mix(in srgb,var(--b) 25%,transparent));
+  border:1px solid var(--border2);
+}
+.brand .mark svg{width:20px;height:20px;position:relative;z-index:1}
+.brand .mark::after{
+  content:'';position:absolute;inset:-40%;
+  background:conic-gradient(from 0deg,transparent,var(--a),transparent 30%);
+  animation:spin 6s linear infinite;opacity:.35;mix-blend-mode:screen;
+}
+.links{display:flex;align-items:center;gap:6px}
+.links a{padding:8px 16px;border-radius:999px;font-size:.86rem;font-weight:600;color:var(--muted);transition:.25s}
+.links a:hover{color:var(--text);background:var(--glass2)}
+.links a.active{color:#fff;background:var(--glass2);box-shadow:inset 0 0 0 1px var(--border2)}
+.links a.admin-link{color:var(--dim);font-size:.78rem;letter-spacing:.08em;margin-left:4px;display:inline-flex;align-items:center;gap:5px}
+.links a.admin-link svg{width:13px;height:13px}
+.burger{display:none;width:42px;height:42px;border-radius:12px;border:1px solid var(--border);background:var(--glass);place-items:center}
+.burger span{display:block;width:18px;height:2px;background:var(--text);margin:2.5px 0;border-radius:2px;transition:.3s}
+.burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.drawer{
+  position:fixed;top:var(--nav-h);left:0;right:0;z-index:99;
+  background:rgba(6,7,13,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);transform:translateY(-8px);opacity:0;pointer-events:none;
+  transition:.3s;padding:12px 1.25rem 24px;
+}
+.drawer.open{transform:none;opacity:1;pointer-events:auto}
+.drawer a{display:flex;align-items:center;justify-content:space-between;padding:14px 12px;font-weight:600;border-bottom:1px solid var(--border);font-size:1rem}
+.drawer a:last-child{border-bottom:0}
+.drawer a.active{color:var(--a)}
+@media (max-width:880px){.links{display:none}.burger{display:grid}}
+
+/* ---------- Layout ---------- */
+#app{position:relative;z-index:1;min-height:calc(100vh - var(--nav-h))}
+.view{animation:viewin .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes viewin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+section{padding:3.5rem 0}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.6rem;flex-wrap:wrap}
+.eyebrow{font-size:.7rem;letter-spacing:.26em;text-transform:uppercase;color:var(--a);font-weight:700;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:18px;height:2px;background:linear-gradient(90deg,var(--a),transparent)}
+.sec-head h2{font-size:clamp(1.6rem,3.2vw,2.3rem);margin-top:.35rem}
+.sec-head p{color:var(--muted);max-width:54ch}
+.sub{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:12px 22px;border-radius:12px;font-weight:700;font-size:.88rem;letter-spacing:.04em;
+  transition:.25s cubic-bezier(.2,.7,.2,1);border:1px solid transparent;position:relative;
+  overflow:hidden;white-space:nowrap;min-height:46px;-webkit-tap-highlight-color:transparent;
+}
+.btn svg{width:16px;height:16px;flex:none}
+.btn:active{transform:scale(.97)}
+.btn-primary{
+  background:linear-gradient(120deg,var(--a),var(--b));color:#05060c;
+  box-shadow:0 10px 30px -10px color-mix(in srgb,var(--a) 60%,transparent);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px -12px color-mix(in srgb,var(--a) 70%,transparent),inset 0 0 0 1px rgba(255,255,255,.2)}
+.btn-ghost{background:var(--glass);border-color:var(--border2);color:var(--text);backdrop-filter:blur(8px)}
+.btn-ghost:hover{background:var(--glass2);border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+.btn-danger{background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.35);color:#fda4af}
+.btn-danger:hover{background:rgba(244,63,94,.22)}
+.btn-ok{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.35);color:#a7f3d0}
+.btn-ok:hover{background:rgba(52,211,153,.22)}
+.btn-sm{padding:8px 14px;font-size:.78rem;min-height:36px;border-radius:10px}
+.btn-icon{width:40px;height:40px;padding:0;border-radius:11px}
+.btn:disabled{opacity:.5;pointer-events:none}
+.btn-block{width:100%}
+.btn.loading{pointer-events:none;opacity:.75}
+.btn.loading::after{
+  content:'';width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(0,0,0,.25);border-top-color:currentColor;animation:spin .7s linear infinite;
+}
+
+/* ---------- Cards ---------- */
+.glass{background:var(--glass);border:1px solid var(--border);border-radius:var(--r-lg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem}
+.grid-cards.books{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+@media (max-width:520px){.grid-cards{grid-template-columns:1fr;gap:1rem}.grid-cards.books{grid-template-columns:1fr}}
+.card{
+  position:relative;display:flex;flex-direction:column;background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;isolation:isolate;
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s;
+}
+.card::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;opacity:0;transition:.4s;
+  background:linear-gradient(140deg,color-mix(in srgb,var(--a) 20%,transparent),transparent 45%,color-mix(in srgb,var(--c) 15%,transparent));
+}
+.card:hover{transform:translateY(-6px);border-color:var(--border2);box-shadow:0 30px 60px -25px rgba(0,0,0,.9),0 0 0 1px color-mix(in srgb,var(--a) 25%,transparent)}
+.card:hover::before{opacity:1}
+.card .cover{position:relative;overflow:hidden;background:#0d111e;aspect-ratio:16/10;display:block}
+.card.book .cover{aspect-ratio:3/4}
+.card .cover img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.card:hover .cover img{transform:scale(1.06)}
+.card .cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(6,7,13,.8))}
+.card .body{padding:1.1rem;display:flex;flex-direction:column;gap:.6rem;flex:1;position:relative;z-index:2}
+.card h3{font-size:1.08rem;font-weight:700;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card h3 a:hover{color:var(--a)}
+.card p{font-size:.85rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px;font-size:.72rem;color:var(--dim);align-items:center}
+.card .actions{display:flex;gap:8px;margin-top:auto;padding-top:.5rem}
+.card .actions .btn{flex:1}
+.card .actions .btn-icon{flex:none;width:40px}
+.badges{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:6px;z-index:3;flex-wrap:wrap}
+.badges>span:empty{display:none}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;
+  font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  backdrop-filter:blur(8px);border:1px solid var(--border2);background:rgba(6,7,13,.65);color:var(--text);
+}
+.badge svg{width:11px;height:11px}
+.badge.feat{background:linear-gradient(120deg,var(--a),var(--b));color:#05060c;border-color:transparent;box-shadow:0 6px 18px -6px var(--a)}
+.badge.draft{background:rgba(250,204,21,.15);border-color:rgba(250,204,21,.4);color:#fde68a}
+.badge.pub{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.4);color:#a7f3d0}
+.badge.type{background:rgba(6,7,13,.7)}
+.chip{
+  display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:var(--glass2);
+  border:1px solid var(--border);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+}
+
+/* ---------- Hero ---------- */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center;min-height:calc(100vh - var(--nav-h) - 40px);padding:3rem 0 4rem}
+.hero-copy .signal{
+  display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border-radius:999px;
+  border:1px solid var(--border);background:var(--glass);font-size:.72rem;letter-spacing:.2em;
+  color:var(--muted);margin-bottom:1.8rem;
+}
+.hero-copy .signal i{width:7px;height:7px;border-radius:50%;background:var(--a);box-shadow:0 0 12px var(--a);animation:pulse 2.4s infinite}
+.hero h1{font-size:clamp(2.6rem,6.4vw,5.4rem);line-height:.96;letter-spacing:-.035em;font-weight:900}
+.hero h1 span{display:block;animation:fadeup .8s cubic-bezier(.2,.7,.2,1) both}
+.hero h1 span:nth-child(2){animation-delay:.12s}
+.hero h1 span:nth-child(3){animation-delay:.24s}
+.hero h1 .hl{background:linear-gradient(90deg,var(--a),var(--b) 55%,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.1em}
+.hero .lead{color:var(--muted);font-size:1.08rem;max-width:52ch;margin:1.6rem 0 2.2rem;animation:fadeup .8s .35s both}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap;animation:fadeup .8s .45s both}
+.hero .stats{display:flex;gap:2.2rem;margin-top:2.8rem;animation:fadeup .8s .55s both;flex-wrap:wrap}
+.hero .stats div b{display:block;font-family:var(--font-head);font-size:1.7rem;font-weight:800}
+.hero .stats div span{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.hero-card{
+  position:relative;aspect-ratio:1/1.05;max-height:580px;border-radius:26px;overflow:hidden;
+  border:1px solid var(--border2);
+  background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.01));
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.9),inset 0 0 0 1px rgba(255,255,255,.03);
+  animation:cardin 1s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes cardin{from{opacity:0;transform:translateY(30px) rotateX(6deg)}to{opacity:1;transform:none}}
+.hero-card::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(70% 60% at 30% 20%,color-mix(in srgb,var(--a) 28%,transparent),transparent 65%),
+    radial-gradient(60% 60% at 80% 85%,color-mix(in srgb,var(--c) 26%,transparent),transparent 65%),
+    radial-gradient(50% 50% at 70% 30%,color-mix(in srgb,var(--b) 30%,transparent),transparent 60%);
+}
+.hero-card .lines{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(circle at 50% 50%,#000,transparent 80%);
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,#000,transparent 80%);
+}
+.hero-card .orb{
+  position:absolute;left:50%;top:44%;width:56%;aspect-ratio:1;transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),transparent 40%),
+             conic-gradient(from 200deg,var(--a),var(--b),var(--c),var(--a));
+  box-shadow:0 0 80px -10px color-mix(in srgb,var(--b) 70%,transparent),inset 0 0 60px rgba(0,0,0,.35);
+  animation:orbfloat 8s ease-in-out infinite;
+}
+@keyframes orbfloat{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-54%) scale(1.03)}}
+.hero-card .orb::after{
+  content:'';position:absolute;inset:6%;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,rgba(6,7,13,.9),rgba(6,7,13,.6) 60%,transparent);
+}
+.hero-card .nsym{position:absolute;left:50%;top:44%;width:26%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 20px var(--a))}
+.hero-card .ring-a{
+  position:absolute;left:50%;top:44%;width:76%;aspect-ratio:1;transform:translate(-50%,-50%);
+  border-radius:50%;border:1px solid rgba(255,255,255,.14);animation:spin 40s linear infinite;
+}
+.hero-card .ring-a::before{content:'';position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:50%;background:var(--a);box-shadow:0 0 16px var(--a)}
+.hero-card .ring-b{
+  position:absolute;left:50%;top:44%;width:94%;aspect-ratio:1;transform:translate(-50%,-50%);
+  border-radius:50%;border:1px dashed rgba(255,255,255,.1);animation:spin 70s linear infinite reverse;
+}
+.hero-card .hud{position:absolute;left:20px;right:20px;bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;z-index:2}
+.hero-card .hud .box{
+  padding:12px 14px;border-radius:14px;background:rgba(6,7,13,.65);border:1px solid var(--border);
+  backdrop-filter:blur(12px);font-size:.66rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;
+}
+.hero-card .hud .box b{display:block;color:var(--text);font-size:.92rem;letter-spacing:.05em;margin-top:3px;font-family:var(--font-head);text-transform:none}
+.hero-card .tag{position:absolute;top:18px;left:18px;z-index:2}
+.hero-card .corner{position:absolute;top:18px;right:18px;font-size:.64rem;letter-spacing:.2em;color:var(--dim);text-align:right;line-height:1.7;z-index:2}
+.hero-card.feat img.cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-card.feat::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,7,13,.1),rgba(6,7,13,.3) 50%,rgba(6,7,13,.94));z-index:1}
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;min-height:auto;padding:2.2rem 0 3rem;gap:2.5rem}
+  .hero-card{aspect-ratio:4/3;max-height:420px}
+  .hero .stats{gap:1.5rem}
+}
+@media (max-width:520px){
+  .hero .cta .btn{flex:1}
+  .hero-card{aspect-ratio:1/1}
+  .hero-card .hud{flex-direction:column;align-items:stretch}
+  .hero-card .hud .btn{width:100%}
+  .hero-card .corner{display:none}
+}
+
+/* ---------- Tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.tile{padding:1.5rem;border-radius:var(--r);background:var(--glass);border:1px solid var(--border);transition:.3s;position:relative;overflow:hidden;display:block}
+.tile:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 24px 50px -30px rgba(0,0,0,.9)}
+.tile .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:1rem;background:linear-gradient(135deg,color-mix(in srgb,var(--a) 25%,transparent),color-mix(in srgb,var(--b) 25%,transparent))}
+.tile .ico svg{width:22px;height:22px}
+.tile h3{font-size:1.1rem;margin-bottom:.35rem}
+.tile p{font-size:.85rem;color:var(--muted)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media (max-width:760px){.split{grid-template-columns:1fr}}
+
+/* ---------- Toolbar / Search ---------- */
+.toolbar{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.8rem}
+.search{position:relative;display:flex;align-items:center}
+.search svg{position:absolute;left:16px;width:18px;height:18px;color:var(--dim);pointer-events:none}
+.search input{
+  width:100%;padding:14px 44px 14px 48px;border-radius:14px;border:1px solid var(--border);
+  background:var(--glass);color:var(--text);font:inherit;font-size:.98rem;outline:none;transition:.3s;
+  backdrop-filter:blur(10px);
+}
+.search input:focus{border-color:color-mix(in srgb,var(--a) 60%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--a) 14%,transparent),0 0 30px -10px var(--a)}
+.search input::placeholder{color:var(--dim)}
+.search.big input{padding:18px 52px 18px 56px;font-size:1.15rem;border-radius:18px}
+.search.big svg{left:20px;width:22px;height:22px}
+.search .spin{
+  position:absolute;right:16px;width:18px;height:18px;border-radius:50%;
+  border:2px solid var(--border2);border-top-color:var(--a);animation:spin .8s linear infinite;opacity:0;transition:.2s;
+}
+.search.busy .spin{opacity:1}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fbtn{
+  flex:none;padding:8px 16px;border-radius:999px;border:1px solid var(--border);background:var(--glass);
+  font-size:.78rem;font-weight:700;letter-spacing:.06em;color:var(--muted);transition:.25s;min-height:38px;
+}
+.fbtn:hover{color:var(--text);border-color:var(--border2)}
+.fbtn.active{background:linear-gradient(120deg,var(--a),var(--b));color:#05060c;border-color:transparent}
+.hscroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,300px);gap:1.1rem;overflow-x:auto;padding:4px 4px 14px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.hscroll>*{scroll-snap-align:start}
+@media (max-width:520px){.hscroll{grid-auto-columns:minmax(220px,75vw)}}
+
+/* ---------- Empty / Error ---------- */
+.empty{
+  text-align:center;padding:4rem 1.5rem;border-radius:var(--r-lg);
+  border:1px dashed var(--border2);background:var(--glass);position:relative;overflow:hidden;
+}
+.empty::before{content:'';position:absolute;inset:-50%;pointer-events:none;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--b) 14%,transparent),transparent 45%)}
+.empty .ico{width:70px;height:70px;margin:0 auto 1.2rem;border-radius:20px;display:grid;place-items:center;background:var(--glass2);border:1px solid var(--border2);position:relative}
+.empty .ico svg{width:32px;height:32px;color:var(--a)}
+.empty h3{font-size:1.15rem;letter-spacing:.12em;font-weight:800;position:relative}
+.empty p{color:var(--muted);margin-top:.5rem;position:relative}
+.empty .btn{margin-top:1.4rem;position:relative}
+.errbox{border-color:rgba(244,63,94,.35)}
+.errbox .ico svg{color:#fb7185}
+
+/* ---------- Detail ---------- */
+.detail{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:3rem;align-items:start;padding:2.5rem 0 4rem}
+.detail .cover{position:relative;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border2);box-shadow:var(--shadow);aspect-ratio:16/10;background:#0f1322}
+.detail.book .cover{aspect-ratio:3/4;max-width:440px}
+.detail .cover img{width:100%;height:100%;object-fit:cover}
+.detail .cover .glow{position:absolute;inset:-30%;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(circle at 50% 100%,color-mix(in srgb,var(--b) 40%,transparent),transparent 50%)}
+.detail h1{font-size:clamp(2rem,4.5vw,3.4rem);margin:.6rem 0 1rem}
+.detail .desc{color:var(--muted);font-size:1.05rem;white-space:pre-line;max-width:60ch}
+.detail .specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem;margin:1.8rem 0}
+.detail .specs div{padding:.9rem 1rem;border-radius:12px;background:var(--glass);border:1px solid var(--border)}
+.detail .specs span{display:block;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.detail .specs b{font-family:var(--font-head);font-size:.98rem}
+.detail .cta{display:flex;gap:12px;flex-wrap:wrap}
+.back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 0;transition:.2s}
+.back:hover{color:var(--text)}
+.back svg{width:16px;height:16px}
+@media (max-width:860px){
+  .detail{grid-template-columns:1fr;gap:1.8rem;padding:1.4rem 0 3rem}
+  .detail.book .cover{max-width:320px}
+  .detail .cta .btn{flex:1}
+}
+
+/* ---------- Forms ---------- */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.field input,.field textarea,.field select{
+  width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border);
+  background:rgba(255,255,255,.04);color:var(--text);font:inherit;font-size:.95rem;outline:none;
+  transition:.25s;-webkit-appearance:none;appearance:none;
+}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2398a2b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:16px;
+}
+.field select option{background:#0e1220;color:var(--text)}
+.field textarea{min-height:110px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{
+  border-color:color-mix(in srgb,var(--a) 60%,transparent);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--a) 12%,transparent);
+}
+.field .hint{font-size:.72rem;color:var(--dim)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:600px){.frow{grid-template-columns:1fr}}
+.upload{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.upload input[type="file"]{display:none}
+.upload .prev{width:66px;height:66px;border-radius:10px;object-fit:cover;background:#0f1322;border:1px solid var(--border);flex:none}
+label.btn{cursor:pointer}
+.switch{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;
+  border:1px solid var(--border);background:rgba(255,255,255,.03);cursor:pointer;user-select:none;
+}
+.switch span{font-weight:600;font-size:.9rem}
+.switch small{display:block;color:var(--dim);font-size:.72rem;font-weight:500}
+.switch input{display:none}
+.switch .knob{width:44px;height:26px;border-radius:999px;background:rgba(255,255,255,.1);position:relative;transition:.3s;flex:none;border:1px solid var(--border2)}
+.switch .knob::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.switch input:checked+.knob{background:linear-gradient(120deg,var(--a),var(--b));border-color:transparent}
+.switch input:checked+.knob::after{transform:translateX(18px);background:#05060c}
+.formgrid{display:flex;flex-direction:column;gap:1.1rem}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;padding-top:.9rem;border-top:1px solid var(--border);margin-top:.5rem}
+@media (max-width:600px){.form-actions .btn{flex:1 1 44%}}
+
+/* ---------- Modals ---------- */
+#modal-root .modal-bg{
+  position:fixed;inset:0;z-index:500;background:rgba(3,4,9,.75);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;transition:opacity .3s ease;
+}
+#modal-root .modal-bg.show{opacity:1}
+.modal{
+  width:min(680px,100%);max-height:calc(100vh - 2rem);overflow-y:auto;position:relative;
+  background:linear-gradient(160deg,rgba(20,24,40,.96),rgba(9,11,20,.98));
+  border:1px solid var(--border2);border-radius:var(--r-lg);
+  box-shadow:0 50px 120px -30px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.08);
+  transform:translateY(18px) scale(.98);transition:transform .35s cubic-bezier(.2,.7,.2,1);
+}
+.modal-bg.show .modal{transform:none}
+.modal .mhead{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.2rem 1.4rem;
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;
+  background:rgba(12,15,26,.92);backdrop-filter:blur(10px);
+}
+.modal .mhead h3{font-size:1.1rem;letter-spacing:.06em}
+.modal .mbody{padding:1.4rem}
+.modal.small{width:min(440px,100%)}
+.modal.player{width:min(1400px,100%);height:calc(100vh - 2rem);height:calc(100dvh - 2rem);display:flex;flex-direction:column;background:#04050a}
+.modal.player .mbody{padding:0;flex:1;display:flex;flex-direction:column;min-height:0}
+.modal.player iframe{flex:1;width:100%;border:0;background:#000;min-height:0}
+.modal.player .mhead{padding:.8rem 1rem}
+.modal.player .mhead .grp{display:flex;gap:8px}
+.x{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--border);background:var(--glass);transition:.2s}
+.x:hover{background:var(--glass2);transform:rotate(90deg)}
+.x svg{width:16px;height:16px}
+@media (max-width:600px){
+  #modal-root .modal-bg{padding:0;align-items:flex-end}
+  .modal{max-height:94vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .modal.player{height:100vh;height:100dvh;border-radius:0;max-height:none}
+}
+.player-fallback{padding:3rem 1.5rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.6rem;background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--b) 14%,transparent),transparent 60%)}
+.player-fallback svg{width:44px;height:44px;color:var(--a)}
+.player-fallback h3{letter-spacing:.14em}
+.player-fallback p{color:var(--muted);max-width:46ch;font-size:.92rem}
+
+/* ---------- Toasts ---------- */
+#toast-root{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:900;
+  display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
+  width:min(420px,calc(100% - 2rem));
+}
+.toast{
+  pointer-events:auto;padding:12px 18px;border-radius:12px;background:rgba(14,17,30,.94);
+  border:1px solid var(--border2);backdrop-filter:blur(12px);font-size:.88rem;font-weight:600;
+  display:flex;gap:10px;align-items:center;box-shadow:var(--shadow);width:100%;
+  animation:toastin .4s cubic-bezier(.2,.7,.2,1);
+}
+.toast i{width:8px;height:8px;border-radius:50%;background:var(--a);box-shadow:0 0 10px var(--a);flex:none}
+.toast.err i{background:#fb7185;box-shadow:0 0 10px #fb7185}
+.toast.ok i{background:#34d399;box-shadow:0 0 10px #34d399}
+.toast.out{animation:toastout .35s forwards}
+@keyframes toastin{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastout{to{opacity:0;transform:translateY(10px) scale(.96)}}
+
+/* ---------- Admin ---------- */
+.admin-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.6rem}
+.admin-head .who{font-size:.82rem;color:var(--muted)}
+.admin-head .who b{color:var(--text)}
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.9rem;margin-bottom:1.8rem}
+.stat{padding:1.1rem 1.2rem;border-radius:var(--r);background:var(--glass);border:1px solid var(--border);position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--a) 20%,transparent),transparent 70%)}
+.stat span{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.stat b{display:block;font-family:var(--font-head);font-size:1.9rem;font-weight:800;margin-top:2px}
+.tabs{display:flex;gap:6px;padding:5px;border-radius:14px;background:var(--glass);border:1px solid var(--border);width:max-content;max-width:100%;overflow-x:auto}
+.tabs button{padding:10px 18px;border-radius:10px;font-weight:700;font-size:.85rem;color:var(--muted);transition:.25s;min-height:40px;white-space:nowrap}
+.tabs button.active{background:var(--glass2);color:var(--text);box-shadow:inset 0 0 0 1px var(--border2)}
+.admin-bar{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin:1.4rem 0 1rem}
+.rows{display:flex;flex-direction:column;gap:.75rem}
+.row{display:grid;grid-template-columns:72px 1fr auto;gap:1rem;align-items:center;padding:.85rem;border-radius:var(--r);background:var(--glass);border:1px solid var(--border);transition:.25s}
+.row:hover{border-color:var(--border2);background:var(--glass2)}
+.row .thumb{width:72px;height:54px;border-radius:10px;object-fit:cover;background:#0f1322;border:1px solid var(--border)}
+.row.bookrow .thumb{height:72px;width:54px}
+.row .info h4{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row .info p{font-size:.78rem;color:var(--dim);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row .ops{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row .ops .btn{padding:8px 12px;min-height:36px;font-size:.74rem}
+@media (max-width:760px){
+  .row{grid-template-columns:60px 1fr}
+  .row .ops{grid-column:1/-1;justify-content:flex-start}
+  .row .thumb{width:60px;height:46px}
+  .row.bookrow .thumb{width:46px;height:60px}
+}
+.login-wrap{max-width:440px;margin:3.5rem auto;padding:2.2rem}
+.login-wrap .nlogo{width:60px;height:60px;margin:0 auto 1rem}
+.login-wrap h2{text-align:center;letter-spacing:.08em;font-size:1.35rem}
+.login-wrap .sub{text-align:center;font-size:.85rem;margin:.4rem 0 1.6rem}
+.note{padding:12px 14px;border-radius:12px;border:1px solid rgba(250,204,21,.3);background:rgba(250,204,21,.07);font-size:.82rem;color:#fde68a;line-height:1.5}
+.note.info{border-color:color-mix(in srgb,var(--a) 35%,transparent);background:color-mix(in srgb,var(--a) 8%,transparent);color:var(--text)}
+.note code{font-family:ui-monospace,monospace;background:rgba(0,0,0,.35);padding:1px 6px;border-radius:5px}
+
+/* ---------- Skeleton ---------- */
+.skel{border-radius:var(--r);border:1px solid var(--border);background:linear-gradient(100deg,rgba(255,255,255,.03) 30%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.03) 70%);background-size:200% 100%;animation:shimmer 1.4s linear infinite;height:300px}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* ---------- Footer ---------- */
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2.5rem 0 calc(2rem + env(safe-area-inset-bottom));margin-top:2rem;color:var(--dim);font-size:.78rem}
+footer .fin{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer .modepill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1px solid var(--border);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
+footer .modepill i{width:7px;height:7px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a)}
+footer .modepill.demo i{background:#fbbf24;box-shadow:0 0 8px #fbbf24}
+footer .credit{font-size:.75rem;letter-spacing:.06em}
+footer .credit b{color:var(--text);font-weight:700}
+.shuffle{color:var(--muted);font-weight:700;letter-spacing:.1em;font-size:.72rem;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;transition:.2s}
+.shuffle:hover{color:var(--a)}
+.shuffle svg{width:14px;height:14px}
+
+/* ---------- About ---------- */
+.about-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;align-items:start}
+@media (max-width:860px){.about-grid{grid-template-columns:1fr}}
+.about-grid .glass{padding:1.8rem}
+.about-grid h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:1rem}
+.about-grid p{color:var(--muted);margin-bottom:1rem}
+.kv{display:flex;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border);font-size:.85rem}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--dim)}
+.kv b{font-family:var(--font-head)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loader" aria-live="polite">
+  <div class="nlogo">
+    <svg viewBox="0 0 80 80">
+      <defs>
+        <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="var(--a)"/>
+          <stop offset="1" stop-color="var(--c)"/>
+        </linearGradient>
+      </defs>
+      <circle class="ring" cx="40" cy="40" r="37"/>
+      <circle class="ring2" cx="40" cy="40" r="37"/>
+      <path class="n" d="M25 58V22l30 36V22"/>
+    </svg>
+  </div>
+  <div class="word">NEXUS HUB</div>
+  <div class="signal" id="loader-signal">INITIALIZING SIGNAL</div>
+</div>
+
+<!-- Dynamic Atmosphere Background -->
+<div id="bg" aria-hidden="true">
+  <div class="grid"></div>
+  <div id="blobs"></div>
+  <div id="shapes"></div>
+  <canvas id="particles"></canvas>
+</div>
+
+<!-- Header Navigation -->
+<header id="nav">
+  <div class="wrap navin">
+    <a href="#/" class="brand" aria-label="NEXUS HUB home">
+      <span class="mark">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M25 58V22l30 36V22"/>
+        </svg>
+      </span>
+      <span>NEXUS HUB</span>
+    </a>
+    <nav class="links" id="nav-links">
+      <a href="#/" data-route="/">Home</a>
+      <a href="#/games" data-route="/games">Games</a>
+      <a href="#/books" data-route="/books">Books</a>
+      <a href="#/about" data-route="/about">About</a>
+      <a href="#/search" data-route="/search">Search</a>
+      <a href="#/admin" data-route="/admin" class="admin-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="11" width="16" height="10" rx="2"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+        </svg>
+        Admin
+      </a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Toggle menu" data-action="nav-toggle" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Drawer -->
+<div class="drawer" id="drawer">
+  <a href="#/" data-route="/">Home</a>
+  <a href="#/games" data-route="/games">Games</a>
+  <a href="#/books" data-route="/books">Books</a>
+  <a href="#/about" data-route="/about">About</a>
+  <a href="#/search" data-route="/search">Search</a>
+  <a href="#/admin" data-route="/admin" style="color:var(--dim)">Admin Panel</a>
+</div>
+
+<!-- Application Main Mount -->
+<main id="app"><div class="wrap"></div></main>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap fin">
+    <div class="brand">
+      <span class="mark" style="width:28px;height:28px;border-radius:8px">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M25 58V22l30 36V22"/>
+        </svg>
+      </span>
+      <span style="font-size:.88rem">NEXUS HUB</span>
+    </div>
+    <div class="mono" id="footer-signal"></div>
+    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+      <span class="credit">Designed &amp; programmed by <b>Abdlerhman Mohamed</b></span>
+      <button class="shuffle" data-action="shuffle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+        </svg>
+        Reshuffle atmosphere
+      </button>
+      <span class="modepill" id="mode-pill"><i></i>—</span>
+    </div>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<!-- Supabase Library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================
+   NEXUS HUB — Application Core
+   Designed and programmed by Abdlerhman Mohamed
+   ------------------------------------------------------------
+   Configuration: add Supabase credentials to link a live cloud
+   instance (recommended for production). If left empty, the app
+   runs safely in Local Persistent Storage mode (demo/fallback).
+   ============================================================ */
+const NEXUS_CONFIG = {
+  // Paste your Supabase Project URL and PUBLIC anon key here.
+  // Never put the service_role key in this file.
+  supabaseUrl: 'PASTE_YOUR_SUPABASE_URL_HERE',
+  supabaseAnonKey: 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE',
+  gamesTable: 'games',
+  booksTable: 'books',
+  adminsTable: 'admins',
+  storageBucket: 'nexus-media'
+};
+
+const SUPABASE_CONFIGURED =
+  /^https:\/\/[^\s]+\.supabase\.co\/?$/.test(NEXUS_CONFIG.supabaseUrl) &&
+  NEXUS_CONFIG.supabaseAnonKey &&
+  !NEXUS_CONFIG.supabaseAnonKey.startsWith('PASTE_');
+
+/*
+DATABASE SETUP:
+1) Put your Supabase Project URL in supabaseUrl.
+2) Put only the public anon key in supabaseAnonKey.
+3) Keep the existing games/books/admins tables and required columns.
+4) Create the nexus-media Storage bucket for dashboard uploads.
+*/
+
+/* ================= Utilities ================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const isMobile = () => matchMedia('(max-width:700px)').matches;
+const fmtDate = (d) => {
+  if (!d) return '—';
+  const t = new Date(d);
+  return isNaN(t) ? String(d) : t.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+};
+const GAME_CATS = ['Arcade', 'Story', 'Party', 'Action', 'Puzzle', 'Other'];
+const BOOK_CATS = ['Fiction', 'Adventure', 'Mystery', 'Stories', 'Educational', 'Other'];
+
+/* ================= Icons ================= */
+const ICONS = {
+  play:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.87l11-6.5a1 1 0 0 0 0-1.73l-11-6.5A1 1 0 0 0 8 5.5z"/></svg>',
+  book:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  dl:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  game:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h4m-2-2v4m7-1h.01M18 11h.01M7 6h10a5 5 0 0 1 5 5v1a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5v-1a5 5 0 0 1 5-5z"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg>',
+  x:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  back:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>',
+  ext:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>',
+  full:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+  plus:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  lock:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',
+  edit:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>',
+  star:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.8 5.9 6.2.8-4.6 4.4 1.2 6.3L12 17.3l-5.6 3.1 1.2-6.3L3 9.7l6.2-.8z"/></svg>',
+  logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+  eye:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9m0 0 4 4m-4-4-4 4M4 5V3h16v2"/></svg>'
+};
+
+/* ================= Atmosphere ================= */
+const THEMES = [
+  { name: 'Cyan Drift',      a: '#22d3ee', b: '#8b5cf6', c: '#f472b6', bg: '#06070d', bg2: '#0a0f1f' },
+  { name: 'Violet Pulse',    a: '#a78bfa', b: '#38bdf8', c: '#fb7185', bg: '#07060f', bg2: '#100b22' },
+  { name: 'Magenta Signal',  a: '#f472b6', b: '#818cf8', c: '#2dd4bf', bg: '#0a0610', bg2: '#160a1f' },
+  { name: 'Aurora Field',    a: '#34d399', b: '#38bdf8', c: '#c084fc', bg: '#050a0c', bg2: '#08131a' },
+  { name: 'Solar Bloom',     a: '#fbbf24', b: '#f472b6', c: '#818cf8', bg: '#0b0708', bg2: '#170d10' },
+  { name: 'Glacier Core',    a: '#67e8f9', b: '#a5b4fc', c: '#f0abfc', bg: '#05070f', bg2: '#0a1024' },
+  { name: 'Ion Storm',       a: '#38bdf8', b: '#c084fc', c: '#fbbf24', bg: '#050810', bg2: '#0b1224' }
+];
+const HERO_LINES = [
+  ['PLAY.', 'READ.', 'EXPLORE.'],
+  ['PLAY.', 'READ.', 'DISCOVER.'],
+  ['CREATE.', 'PLAY.', 'REPEAT.'],
+  ['ENTER.', 'EXPLORE.', 'RETURN.'],
+  ['YOUR WORLD.', 'YOUR RULES.'],
+  ['BUILD.', 'SHIP.', 'PLAY.'],
+  ['STORIES.', 'SYSTEMS.', 'SIGNALS.'],
+  ['ONE HUB.', 'EVERY WORLD.']
+];
+const MOODS = ['NOCTURNE', 'ORBITAL', 'SIGNAL DRIFT', 'DEEP FIELD', 'AFTERGLOW', 'HYPERLANE', 'QUIET STORM', 'LOW ORBIT'];
+const LEADS = [
+  'NEXUS HUB is a personal universe for games, stories, books and digital creations — one place to play, read and explore everything I build.',
+  'A personal publishing hub for original games, books and digital experiments. Everything here is handmade, and every visit feels a little different.',
+  'Welcome to my personal universe: playable worlds, written stories and digital creations, gathered in a single evolving hub.'
+];
+
+const SESSION = {};
+
+function shuffleAtmosphere(quiet) {
+  SESSION.theme   = pick(THEMES);
+  SESSION.hero    = pick(HERO_LINES);
+  SESSION.lead    = pick(LEADS);
+  SESSION.mood    = pick(MOODS);
+  SESSION.signal  = Math.floor(rnd(0x1000, 0xFFFF)).toString(16).toUpperCase();
+  SESSION.channel = Math.floor(rnd(1, 99)).toString().padStart(2, '0');
+
+  const r = document.documentElement.style, t = SESSION.theme;
+  r.setProperty('--a', t.a);
+  r.setProperty('--b', t.b);
+  r.setProperty('--c', t.c);
+  r.setProperty('--bg', t.bg);
+  r.setProperty('--bg2', t.bg2);
+  const meta = document.querySelector('meta[name=theme-color]');
+  if (meta) meta.setAttribute('content', t.bg);
+
+  /* Blobs */
+  const blobs = $('#blobs');
+  blobs.innerHTML = '';
+  ['b1', 'b2', 'b3'].forEach(cls => {
+    const d = document.createElement('div');
+    d.className = 'blob ' + cls;
+    const s = rnd(30, 50);
+    d.style.cssText = `width:${s}vw;height:${s}vw;left:${rnd(-10, 80)}%;top:${rnd(-15, 75)}%;animation-delay:-${rnd(0, 20)}s`;
+    blobs.appendChild(d);
+  });
+
+  /* Floating geometry */
+  const shapes = $('#shapes');
+  shapes.innerHTML = '';
+  const n = isMobile() ? 3 : 5;
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('div');
+    const kind = pick(['ring', 'ring', 'sq', 'dot']);
+    d.className = 'shape ' + kind;
+    const s = kind === 'dot' ? rnd(4, 7) : rnd(90, 240);
+    d.style.cssText = `width:${s}px;height:${s}px;left:${rnd(2, 92)}%;top:${rnd(5, 90)}%;animation-duration:${rnd(40, 110)}s;${Math.random() > 0.5 ? 'animation-direction:reverse;' : ''}`;
+    shapes.appendChild(d);
+  }
+
+  const sig = `SIGNAL 0x${SESSION.signal} · CH ${SESSION.channel} · ${SESSION.mood}`;
+  const fs = $('#footer-signal'); if (fs) fs.textContent = sig;
+  const ls = $('#loader-signal'); if (ls) ls.textContent = sig;
+
+  if (!quiet) render();
+}
+
+/* ================= Particles ================= */
+(function initParticles() {
+  const c = $('#particles');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let pts = [], w = 0, h = 0, raf = null;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize() {
+    w = c.width = innerWidth;
+    h = c.height = innerHeight;
+    const count = reduce ? 0 : (isMobile() ? 26 : 52);
+    pts = Array.from({ length: count }, () => ({
+      x: rnd(0, w), y: rnd(0, h), r: rnd(.7, 1.8),
+      vx: rnd(-.12, .12), vy: rnd(-.16, .06),
+      o: rnd(.2, .6), t: rnd(0, 6.28)
+    }));
+  }
+  function step() {
+    ctx.clearRect(0, 0, w, h);
+    const col = getComputedStyle(document.documentElement).getPropertyValue('--a').trim() || '#22d3ee';
+    for (const p of pts) {
+      p.x += p.vx; p.y += p.vy; p.t += .012;
+      if (p.x < -5) p.x = w + 5;
+      if (p.x > w + 5) p.x = -5;
+      if (p.y < -5) p.y = h + 5;
+      if (p.y > h + 5) p.y = -5;
+      ctx.globalAlpha = p.o * (.6 + .4 * Math.sin(p.t));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.28);
+      ctx.fillStyle = col;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(step);
+  }
+  addEventListener('resize', resize, { passive: true });
+  resize();
+  if (!reduce) step();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelAnimationFrame(raf);
+    else if (!reduce && !raf) step();
+  });
+})();
+
+/* ================= Data Layer ================= */
+class LocalAdapter {
+  constructor() {
+    this.mode = 'demo';
+    this.key = 'nexus_hub_storage_v2';
+    /* Administrator passphrase is stored as character codes rather than
+       plain text. For production use Supabase Authentication instead. */
+    this._adminCode = [98, 111, 100, 121, 109, 111];
+  }
+  _read() {
+    try {
+      const d = JSON.parse(localStorage.getItem(this.key));
+      if (d && Array.isArray(d.games) && Array.isArray(d.books)) return d;
+    } catch (e) { /* ignore corrupted storage */ }
+    return { games: [], books: [] };
+  }
+  _write(d) {
+    try { localStorage.setItem(this.key, JSON.stringify(d)); }
+    catch (e) { throw new Error('Local storage is full. Use external URLs for large assets.'); }
+  }
+  async init() { await sleep(80); }
+  async list(type) {
+    return this._read()[type].slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+  async save(type, item) {
+    const d = this._read(), arr = d[type], now = new Date().toISOString();
+    let saved;
+    if (!item.id) {
+      item.id = uid();
+      item.created_at = now;
+      item.updated_at = now;
+      arr.unshift(item);
+      saved = item;
+    } else {
+      const idx = arr.findIndex(x => x.id === item.id);
+      item.updated_at = now;
+      if (idx > -1) { arr[idx] = { ...arr[idx], ...item }; saved = arr[idx]; }
+      else { item.created_at = now; arr.unshift(item); saved = item; }
+    }
+    this._write(d);
+    return saved;
+  }
+  async remove(type, id) {
+    const d = this._read();
+    d[type] = d[type].filter(x => x.id !== id);
+    this._write(d);
+  }
+  async upload(file, folder = 'covers') {
+    const limit = file.type === 'application/pdf' ? 3e6 : 2.2e6;
+    if (file.size > limit) {
+      throw new Error(`Offline mode limit is ${(limit / 1e6).toFixed(1)}MB for this file type. Use a direct URL instead.`);
+    }
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error('Unable to read the selected file.'));
+      r.readAsDataURL(file);
+    });
+  }
+  async getSession() {
+    return sessionStorage.getItem('nexus_admin_session') === '1'
+      ? { email: 'administrator@nexus-hub.local', admin: true }
+      : null;
+  }
+  async signIn(email, password) {
+    const expected = String.fromCharCode.apply(null, this._adminCode);
+    const given = String(password || '').trim().toLowerCase();
+    if (given !== expected) throw new Error('Invalid administrator passphrase.');
+    sessionStorage.setItem('nexus_admin_session', '1');
+    return this.getSession();
+  }
+  async signOut() { sessionStorage.removeItem('nexus_admin_session'); }
+}
+
+class SupabaseAdapter {
+  constructor(cfg) {
+    this.mode = 'supabase';
+    this.cfg = cfg;
+    this.client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  }
+  async init() {
+    this.client.auth.onAuthStateChange(async () => {
+      state.user = await this.getSession().catch(() => null);
+      updateModePill();
+      if (location.hash.indexOf('#/admin') === 0) render();
+    });
+  }
+  async list(type) {
+    const { data, error } = await this.client.from(type === 'games' ? this.cfg.gamesTable : this.cfg.booksTable).select('*').order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data || [];
+  }
+  async save(type, item) {
+    const allowed = ['id','title','description','category','version','author','release_date','cover_url','content_url','download_url','featured','published'];
+    const row = {};
+    for (const k of allowed) if (k in item) row[k] = item[k];
+    if (type === 'games') delete row.author;
+    if (type === 'books') delete row.version;
+    if (!row.id) delete row.id;
+    if (row.release_date === '') row.release_date = null;
+    row.updated_at = new Date().toISOString();
+    const { data, error } = await this.client.from(type === 'games' ? this.cfg.gamesTable : this.cfg.booksTable).upsert(row).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  }
+  async remove(type, id) {
+    const { error } = await this.client.from(type === 'games' ? this.cfg.gamesTable : this.cfg.booksTable).delete().eq('id', id);
+    if (error) throw new Error(error.message);
+  }
+  async upload(file, folder = 'covers') {
+    const path = `${folder}/${Date.now()}-${file.name.replace(/[^a-z0-9._-]/gi, '_')}`;
+    const { error } = await this.client.storage.from(this.cfg.storageBucket)
+      .upload(path, file, { upsert: true, contentType: file.type || undefined });
+    if (error) throw new Error(error.message);
+    return this.client.storage.from(this.cfg.storageBucket).getPublicUrl(path).data.publicUrl;
+  }
+  async getSession() {
+    const { data } = await this.client.auth.getSession();
+    const u = data && data.session && data.session.user;
+    if (!u) return null;
+    let admin = false;
+    const r = await this.client.from(this.cfg.adminsTable).select('user_id').eq('user_id', u.id).maybeSingle();
+    if (r.error) throw new Error('Unable to verify administrator access: ' + r.error.message);
+    admin = !!r.data;
+    return { email: u.email, id: u.id, admin };
+  }
+  async signIn(email, password) {
+    const { error } = await this.client.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+    return this.getSession();
+  }
+  async signOut() { await this.client.auth.signOut(); }
+}
+
+let db;
+function createAdapter() {
+  if (SUPABASE_CONFIGURED && window.supabase) {
+    return new SupabaseAdapter(NEXUS_CONFIG);
+  }
+  return new LocalAdapter();
+}
+
+/* ================= State ================= */
+const state = {
+  games: [], books: [],
+  loaded: false, loading: true,
+  error: null, user: null,
+  adminTab: 'games',
+  filters: { games: { q: '', cat: 'All' }, books: { q: '', cat: 'All' } }
+};
+
+async function loadData() {
+  state.loading = true;
+  state.error = null;
+  try {
+    const [g, b] = await Promise.all([db.list('games'), db.list('books')]);
+    state.games = g || [];
+    state.books = b || [];
+    state.loaded = true;
+  } catch (e) {
+    state.error = e.message || 'Unable to reach the content service.';
+    state.games = state.games || [];
+    state.books = state.books || [];
+  }
+  state.loading = false;
+}
+
+const isAdmin = () => !!(state.user && state.user.admin);
+const pub = (list) => (list || []).filter(i => i.published);
+
+/* ================= Toast ================= */
+function toast(msg, kind = '', ms = 3200) {
+  const root = $('#toast-root');
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<i></i><span>${esc(msg)}</span>`;
+  root.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 350);
+  }, ms);
+}
+
+/* ================= Modal ================= */
+function openModal(html, cls = '') {
+  const root = $('#modal-root');
+  root.innerHTML = `<div class="modal-bg"><div class="modal ${cls}">${html}</div></div>`;
+  const bg = root.firstElementChild;
+  requestAnimationFrame(() => bg.classList.add('show'));
+  document.body.classList.add('locked');
+}
+function closeModal() {
+  const root = $('#modal-root');
+  const bg = root.firstElementChild;
+  if (!bg) return;
+  bg.classList.remove('show');
+  document.body.classList.remove('locked');
+  setTimeout(() => { if (root.firstElementChild === bg) root.innerHTML = ''; }, 340);
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* ================= Cover Art ================= */
+function coverFallback(title, type) {
+  const t = SESSION.theme || THEMES[0];
+  const initials = (title || 'N').trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || 'N';
+  const label = type === 'books' ? 'NEXUS LIBRARY' : 'NEXUS GAME';
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'>` +
+      `<defs>` +
+        `<linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>` +
+          `<stop offset='0' stop-color='${t.a}'/><stop offset='.55' stop-color='${t.b}'/><stop offset='1' stop-color='${t.c}'/>` +
+        `</linearGradient>` +
+        `<radialGradient id='r' cx='.3' cy='.2'><stop offset='0' stop-color='#fff' stop-opacity='.35'/><stop offset='1' stop-color='#000' stop-opacity='0'/></radialGradient>` +
+      `</defs>` +
+      `<rect width='400' height='300' fill='url(#g)'/>` +
+      `<rect width='400' height='300' fill='url(#r)'/>` +
+      `<rect width='400' height='300' fill='#06070d' opacity='.45'/>` +
+      `<circle cx='320' cy='70' r='120' fill='none' stroke='#fff' stroke-opacity='.15'/>` +
+      `<circle cx='320' cy='70' r='170' fill='none' stroke='#fff' stroke-opacity='.08' stroke-dasharray='6 10'/>` +
+      `<text x='40' y='180' font-family='Outfit,Arial,sans-serif' font-weight='800' font-size='76' fill='#fff' fill-opacity='.95'>${esc(initials)}</text>` +
+      `<text x='40' y='225' font-family='Manrope,Arial,sans-serif' font-size='13' letter-spacing='4' fill='#fff' fill-opacity='.7'>${esc(label)}</text>` +
+    `</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+function coverImg(item, type, cls = '') {
+  const fb = coverFallback(item.title, type);
+  return `<img class="${cls}" src="${esc(item.cover_url || fb)}" data-fallback="${esc(fb)}" alt="${esc(item.title)}" loading="lazy">`;
+}
+document.addEventListener('error', (e) => {
+  const el = e.target;
+  if (el && el.tagName === 'IMG' && el.dataset && el.dataset.fallback && el.src !== el.dataset.fallback) {
+    el.src = el.dataset.fallback;
+  }
+}, true);
+
+function isRecent(item) {
+  const d = new Date(item.release_date || item.created_at);
+  return !isNaN(d) && (Date.now() - d.getTime()) < 45 * 864e5;
+}
+
+/* ================= Components ================= */
+function card(item, type) {
+  const isBook = type === 'books';
+  const single = type.slice(0, -1);
+  const href = `#/${single}/${item.id}`;
+  const badges = [];
+  if (item.featured) badges.push(`<span class="badge feat">${ICONS.spark}Featured</span>`);
+  if (!item.published) badges.push(`<span class="badge draft">Draft</span>`);
+  else if (isRecent(item)) badges.push(`<span class="badge">New</span>`);
+
+  return `<article class="card ${isBook ? 'book' : ''}" data-id="${esc(item.id)}">
+    <a href="${href}" class="cover" aria-label="${esc(item.title)}">
+      ${coverImg(item, type)}
+      <div class="badges">${badges.join('') || '<span></span>'}</div>
+    </a>
+    <div class="body">
+      <div class="meta">
+        <span class="chip">${esc(item.category || 'Other')}</span>
+        ${isBook && item.author ? `<span>by ${esc(item.author)}</span>` : ''}
+        ${!isBook && item.version ? `<span class="mono">v${esc(item.version)}</span>` : ''}
+      </div>
+      <h3><a href="${href}">${esc(item.title)}</a></h3>
+      <p>${esc(item.description || '')}</p>
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" data-action="open" data-type="${type}" data-id="${esc(item.id)}">
+          ${isBook ? ICONS.book + 'READ' : ICONS.play + 'PLAY'}
+        </button>
+        ${item.download_url ? `<a class="btn btn-ghost btn-sm btn-icon" href="${esc(item.download_url)}" target="_blank" rel="noopener" title="Download">${ICONS.dl}</a>` : ''}
+      </div>
+    </div>
+  </article>`;
+}
+
+function emptyState(type, withCta = true) {
+  const g = type === 'games';
+  return `<div class="empty">
+    <div class="ico">${g ? ICONS.game : ICONS.book}</div>
+    <h3>${g ? 'NO GAMES PUBLISHED YET' : 'NO BOOKS PUBLISHED YET'}</h3>
+    <p>${g ? 'Your next creation will appear here.' : 'Your next story will appear here.'}</p>
+    ${withCta && isAdmin() ? `<button class="btn btn-ghost" data-action="admin-add" data-type="${type}">${ICONS.plus} Add the first ${g ? 'game' : 'book'}</button>` : ''}
+  </div>`;
+}
+
+function errorState(msg) {
+  return `<div class="empty errbox">
+    <div class="ico">${ICONS.alert}</div>
+    <h3>CONNECTION NOTICE</h3>
+    <p>${esc(msg || 'Unable to fetch data right now.')}</p>
+    <button class="btn btn-primary" data-action="retry">RETRY</button>
+  </div>`;
+}
+
+function secHead(eyebrow, title, desc, right = '') {
+  return `<div class="sec-head">
+    <div>
+      <div class="eyebrow">${eyebrow}</div>
+      <h2>${title}</h2>
+      ${desc ? `<p>${desc}</p>` : ''}
+    </div>
+    ${right}
+  </div>`;
+}
+
+/* ================= Views ================= */
+function viewHome() {
+  const games = pub(state.games), books = pub(state.books);
+  const featured = [
+    ...games.filter(g => g.featured).map(g => ({ ...g, _t: 'games' })),
+    ...books.filter(b => b.featured).map(b => ({ ...b, _t: 'books' }))
+  ].sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at)).slice(0, 4);
+
+  const latest = [
+    ...games.map(g => ({ ...g, _t: 'games' })),
+    ...books.map(b => ({ ...b, _t: 'books' }))
+  ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 6);
+
+  const heroItem = featured[0] || null;
+  const h = SESSION.hero;
+  const heroH1 = h.map((l, i) => `<span class="${i === h.length - 1 ? 'hl' : ''}">${esc(l)}</span>`).join('');
+
+  const heroCard = heroItem ? `
+    <div class="hero-card feat">
+      ${coverImg(heroItem, heroItem._t, 'cover-img')}
+      <span class="badge feat tag">${ICONS.spark}Featured ${heroItem._t === 'games' ? 'game' : 'book'}</span>
+      <div class="hud">
+        <div class="box">${esc(heroItem.category || 'Featured')}<b>${esc(heroItem.title)}</b></div>
+        <button class="btn btn-primary" data-action="open" data-type="${heroItem._t}" data-id="${esc(heroItem.id)}">
+          ${heroItem._t === 'games' ? ICONS.play + 'PLAY NOW' : ICONS.book + 'READ NOW'}
+        </button>
+      </div>
+    </div>` : `
+    <div class="hero-card">
+      <div class="lines"></div>
+      <div class="ring-b"></div>
+      <div class="ring-a"></div>
+      <div class="orb"></div>
+      <svg class="nsym" viewBox="0 0 80 80" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M25 58V22l30 36V22"/>
+      </svg>
+      <span class="badge tag">${ICONS.spark}${esc(SESSION.mood)}</span>
+      <div class="corner mono">SIG 0x${SESSION.signal}<br>CH ${SESSION.channel}<br>${esc(SESSION.theme.name.toUpperCase())}</div>
+      <div class="hud">
+        <div class="box">Hub status<b>${games.length + books.length ? 'Online · ' + (games.length + books.length) + ' items' : 'Online · awaiting first release'}</b></div>
+        <div class="box">Atmosphere<b>${esc(SESSION.theme.name)}</b></div>
+      </div>
+    </div>`;
+
+  const copy = `
+    <div class="hero-copy">
+      <div class="signal mono"><i></i>SIGNAL 0x${SESSION.signal} · ${esc(SESSION.mood)}</div>
+      <h1>${heroH1}</h1>
+      <p class="lead">${esc(SESSION.lead)}</p>
+      <div class="cta">
+        <a href="#/games" class="btn btn-primary">${ICONS.game}EXPLORE GAMES</a>
+        <a href="#/books" class="btn btn-ghost">${ICONS.book}OPEN LIBRARY</a>
+      </div>
+      <div class="stats">
+        <div><b>${games.length}</b><span>Games</span></div>
+        <div><b>${books.length}</b><span>Books</span></div>
+        <div><b>${featured.length}</b><span>Featured</span></div>
+      </div>
+    </div>`;
+
+  return `<div class="view"><div class="wrap">
+    <div class="hero">${copy}${heroCard}</div>
+    ${state.error ? `<section style="padding-top:0">${errorState(state.error)}</section>` : ''}
+    <section style="padding-top:0">
+      ${secHead('Featured', 'Spotlight', 'Hand-picked highlights from the hub.',
+        featured.length ? '<a href="#/games" class="btn btn-ghost btn-sm">View all</a>' : '')}
+      ${featured.length
+        ? `<div class="grid-cards">${featured.map(i => card(i, i._t)).join('')}</div>`
+        : `<div class="split">${emptyState('games')}${emptyState('books')}</div>`}
+    </section>
+    ${latest.length ? `
+    <section style="padding-top:0">
+      ${secHead('Recently added', 'Fresh from the workshop', 'The newest arrivals across games and books.')}
+      <div class="hscroll">${latest.map(i => card(i, i._t)).join('')}</div>
+    </section>` : ''}
+    <section style="padding-top:0">
+      ${secHead('Navigate', 'Choose your path', '')}
+      <div class="tiles">
+        <a href="#/games" class="tile">
+          <div class="ico">${ICONS.game}</div>
+          <h3>Games</h3>
+          <p>Arcade, story, party, action and puzzle experiences — playable directly in the browser.</p>
+        </a>
+        <a href="#/books" class="tile">
+          <div class="ico">${ICONS.book}</div>
+          <h3>Books</h3>
+          <p>A digital library of fiction, adventures, mysteries and educational reads.</p>
+        </a>
+        <a href="#/search" class="tile">
+          <div class="ico">${ICONS.search}</div>
+          <h3>Search</h3>
+          <p>Find anything across games and books with instant unified filtering.</p>
+        </a>
+        <a href="#/about" class="tile">
+          <div class="ico">${ICONS.spark}</div>
+          <h3>About</h3>
+          <p>How NEXUS HUB works, the creator philosophy, and live release telemetry.</p>
+        </a>
+      </div>
+    </section>
+  </div></div>`;
+}
+
+function libraryToolbar(type, cats) {
+  const f = state.filters[type];
+  return `<div class="toolbar">
+    <div class="search" id="lib-search">
+      ${ICONS.search}
+      <input type="search" id="lib-q" placeholder="Search ${type}…" value="${esc(f.q)}" autocomplete="off" aria-label="Search ${type}">
+      <span class="spin"></span>
+    </div>
+    <div class="filters">
+      ${['All', ...cats].map(c => `<button class="fbtn ${f.cat === c ? 'active' : ''}" data-action="filter" data-type="${type}" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function libraryResults(type) {
+  if (state.error) return errorState(state.error);
+  if (state.loading) return `<div class="grid-cards ${type}">${'<div class="skel"></div>'.repeat(3)}</div>`;
+  const f = state.filters[type];
+  const all = pub(state[type]);
+  if (!all.length) return emptyState(type);
+
+  const q = f.q.trim().toLowerCase();
+  const list = all.filter(i =>
+    (f.cat === 'All' || i.category === f.cat) &&
+    (!q || [i.title, i.description, i.author, i.category, i.version].join(' ').toLowerCase().includes(q))
+  );
+  const filtering = q || f.cat !== 'All';
+
+  if (filtering) {
+    return list.length
+      ? `<div class="sec-head"><div><div class="eyebrow">Results</div><h2>${list.length} ${type === 'games' ? 'game' : 'book'}${list.length !== 1 ? 's' : ''}</h2></div></div>
+         <div class="grid-cards ${type}">${list.map(i => card(i, type)).join('')}</div>`
+      : `<div class="empty">
+           <div class="ico">${ICONS.search}</div>
+           <h3>NO RESULTS FOUND</h3>
+           <p>Try a different keyword or category.</p>
+           <button class="btn btn-ghost" data-action="clear-filter" data-type="${type}">Clear filters</button>
+         </div>`;
+  }
+
+  const featured = all.filter(i => i.featured).slice(0, 4);
+  const fresh = all.filter(isRecent).slice(0, 6);
+  const recent = all.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  return `
+    ${featured.length ? `
+      <div class="sec-head"><div><div class="eyebrow">Featured</div><h2>Featured ${type}</h2></div></div>
+      <div class="grid-cards ${type}" style="margin-bottom:3rem">${featured.map(i => card(i, type)).join('')}</div>` : ''}
+    ${fresh.length ? `
+      <div class="sec-head"><div><div class="eyebrow">New</div><h2>New releases</h2></div></div>
+      <div class="hscroll" style="margin-bottom:2.5rem">${fresh.map(i => card(i, type)).join('')}</div>` : ''}
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow">Library</div>
+        <h2>${type === 'games' ? 'All games' : 'All books'} · ${all.length}</h2>
+        <p>Published items ready to access.</p>
+      </div>
+    </div>
+    <div class="grid-cards ${type}">${recent.map(i => card(i, type)).join('')}</div>`;
+}
+
+function viewLibrary(type) {
+  const g = type === 'games';
+  return `<div class="view"><div class="wrap"><section>
+    ${secHead(
+      g ? 'Games' : 'Books',
+      g ? 'Game Library' : 'Digital Library',
+      g ? 'Playable interactive titles and experimental browser games.'
+        : 'Stories, books and original publications.'
+    )}
+    ${libraryToolbar(type, g ? GAME_CATS : BOOK_CATS)}
+    <div id="lib-results">${libraryResults(type)}</div>
+  </section></div></div>`;
+}
+
+function searchResults(q) {
+  if (state.error) return errorState(state.error);
+  if (state.loading) return `<div class="rows">${'<div class="skel" style="height:80px"></div>'.repeat(3)}</div>`;
+  q = (q || '').trim().toLowerCase();
+  if (!q) {
+    return `<div class="empty">
+      <div class="ico">${ICONS.search}</div>
+      <h3>START TYPING</h3>
+      <p>Find games, fiction, and publications across NEXUS HUB.</p>
+    </div>`;
+  }
+  const hits = [
+    ...pub(state.games).map(g => ({ ...g, _t: 'games' })),
+    ...pub(state.books).map(b => ({ ...b, _t: 'books' }))
+  ].filter(i => [i.title, i.description, i.author, i.category, i.version].join(' ').toLowerCase().includes(q));
+
+  if (!hits.length) {
+    return `<div class="empty">
+      <div class="ico">${ICONS.search}</div>
+      <h3>NO RESULTS FOUND</h3>
+      <p>Nothing matches “${esc(q)}”. Try another search term.</p>
+    </div>`;
+  }
+  return `<div class="sec-head"><div><div class="eyebrow">Results</div><h2>${hits.length} match${hits.length !== 1 ? 'es' : ''}</h2></div></div>
+    <div class="rows">
+      ${hits.map(i => `
+        <div class="row ${i._t === 'books' ? 'bookrow' : ''}">
+          ${coverImg(i, i._t, 'thumb')}
+          <div class="info">
+            <h4>${esc(i.title)}
+              <span class="badge type">${i._t === 'games' ? 'Game' : 'Book'}</span>
+              ${i.featured ? `<span class="badge feat">Featured</span>` : ''}
+            </h4>
+            <p>${esc(i.description || '')}</p>
+          </div>
+          <div class="ops">
+            <a href="#/${i._t.slice(0, -1)}/${esc(i.id)}" class="btn btn-ghost">Details</a>
+            <button class="btn btn-primary" data-action="open" data-type="${i._t}" data-id="${esc(i.id)}">
+              ${i._t === 'games' ? ICONS.play + 'OPEN' : ICONS.book + 'OPEN'}
+            </button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function viewSearch(q) {
+  return `<div class="view"><div class="wrap"><section>
+    ${secHead('Global Search', 'Search the hub', 'Search across all games and books simultaneously.')}
+    <div class="search big" id="g-search">
+      ${ICONS.search}
+      <input type="search" id="g-q" placeholder="Search by title, description, category, or author…" value="${esc(q || '')}" autocomplete="off" aria-label="Global search">
+      <span class="spin"></span>
+    </div>
+    <div id="g-results" style="margin-top:2rem">${searchResults(q)}</div>
+  </section></div></div>`;
+}
+
+function viewDetail(type, id) {
+  const item = state[type].find(i => i.id === id);
+  const g = type === 'games';
+
+  if (state.error) return `<div class="view"><div class="wrap"><section>${errorState(state.error)}</section></div></div>`;
+
+  if (!item || (!item.published && !isAdmin())) {
+    return `<div class="view"><div class="wrap"><section>
+      <a href="#/${type}" class="back">${ICONS.back}Back to ${type}</a>
+      <div class="empty" style="margin-top:1rem">
+        <div class="ico">${ICONS.alert}</div>
+        <h3>NOT FOUND</h3>
+        <p>This ${g ? 'game' : 'book'} is unavailable or has not been published yet.</p>
+        <a href="#/${type}" class="btn btn-primary">Browse ${type}</a>
+      </div>
+    </section></div></div>`;
+  }
+
+  return `<div class="view"><div class="wrap">
+    <div style="padding-top:1.5rem">
+      <a href="#/${type}" class="back">${ICONS.back}Back to ${type}</a>
+    </div>
+    <div class="detail ${g ? '' : 'book'}">
+      <div class="cover">
+        ${coverImg(item, type)}
+        <div class="glow"></div>
+        <div class="badges">
+          ${item.featured ? `<span class="badge feat">${ICONS.spark}Featured</span>` : '<span></span>'}
+          ${!item.published ? `<span class="badge draft">Draft Preview</span>` : ''}
+        </div>
+      </div>
+      <div>
+        <div class="eyebrow">${g ? 'Game' : 'Book'} · ${esc(item.category || 'Other')}</div>
+        <h1>${esc(item.title)}</h1>
+        ${!g && item.author ? `<p class="sub" style="margin-top:-.5rem;margin-bottom:1.2rem">by <b style="color:var(--text)">${esc(item.author)}</b></p>` : ''}
+        <p class="desc">${esc(item.description || 'No description provided.')}</p>
+        <div class="specs">
+          <div><span>Category</span><b>${esc(item.category || 'Other')}</b></div>
+          ${g
+            ? `<div><span>Version</span><b>${esc(item.version || '1.0')}</b></div>`
+            : `<div><span>Author</span><b>${esc(item.author || '—')}</b></div>`}
+          <div><span>Release date</span><b>${fmtDate(item.release_date)}</b></div>
+          <div><span>Catalog ID</span><b class="mono">${esc(String(item.id).slice(0, 8))}</b></div>
+        </div>
+        <div class="cta">
+          <button class="btn btn-primary" data-action="open" data-type="${type}" data-id="${esc(item.id)}">
+            ${g ? ICONS.play + 'PLAY NOW' : ICONS.book + 'READ NOW'}
+          </button>
+          ${item.download_url ? `<a class="btn btn-ghost" href="${esc(item.download_url)}" target="_blank" rel="noopener">${ICONS.dl}DOWNLOAD</a>` : ''}
+          ${isAdmin() ? `<button class="btn btn-ghost" data-action="admin-edit" data-type="${type}" data-id="${esc(item.id)}">${ICONS.edit}EDIT</button>` : ''}
+        </div>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function viewAbout() {
+  const games = pub(state.games), books = pub(state.books);
+  return `<div class="view"><div class="wrap"><section>
+    ${secHead('About', 'What is NEXUS HUB?', '')}
+    <div class="about-grid">
+      <div class="glass">
+        <h2>A personal universe for <span style="background:linear-gradient(90deg,var(--a),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent">play &amp; stories</span>.</h2>
+        <p>NEXUS HUB is an independent publishing platform where interactive games and written literature live together in one place.</p>
+        <p>Games run natively in the browser. Books open inside the built-in reader or as downloadable documents. Everything is managed from a private administrator dashboard — new releases appear on the public site instantly, with no need to edit any code.</p>
+        <p>On every visit, the platform's atmosphere shifts gently: palette, signal, geometry and headlines are reshuffled to keep the hub feeling alive.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1.6rem">
+          <a href="#/games" class="btn btn-primary">${ICONS.game}EXPLORE GAMES</a>
+          <a href="#/books" class="btn btn-ghost">${ICONS.book}OPEN LIBRARY</a>
+        </div>
+      </div>
+      <div class="glass">
+        <div class="eyebrow" style="margin-bottom:.8rem">Hub Telemetry</div>
+        <div class="kv"><span>Published games</span><b>${games.length}</b></div>
+        <div class="kv"><span>Published books</span><b>${books.length}</b></div>
+        <div class="kv"><span>Featured items</span><b>${games.filter(g => g.featured).length + books.filter(b => b.featured).length}</b></div>
+        <div class="kv"><span>Active atmosphere</span><b>${esc(SESSION.theme.name)}</b></div>
+        <div class="kv"><span>Signal ID</span><b class="mono">0x${SESSION.signal}</b></div>
+        <div class="kv"><span>Channel</span><b class="mono">${SESSION.channel}</b></div>
+        <div class="kv"><span>Mode</span><b>${db.mode === 'supabase' ? 'Cloud' : 'Local'}</b></div>
+        <div class="kv"><span>Author</span><b>Abdlerhman Mohamed</b></div>
+      </div>
+    </div>
+  </section></div></div>`;
+}
+
+/* ================= Admin ================= */
+function adminLogin(msg) {
+  return `<div class="view"><div class="wrap">
+    <div class="login-wrap glass">
+      <div class="nlogo">
+        <svg viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="var(--a)"/><stop offset="1" stop-color="var(--c)"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring" cx="40" cy="40" r="37"/>
+          <path class="n" style="stroke:url(#lg2)" d="M25 58V22l30 36V22"/>
+        </svg>
+      </div>
+      <h2>ADMIN ACCESS</h2>
+      <p class="sub">This area is restricted. Only the platform owner can manage content.</p>
+      <div class="formgrid">
+        <div class="field">
+          <label for="ad-email">Administrator email <span style="text-transform:none;letter-spacing:0;color:var(--dim)">(cloud mode)</span></label>
+          <input type="email" id="ad-email" placeholder="you@example.com" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="ad-pass">Passphrase</label>
+          <input type="password" id="ad-pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary btn-block" data-action="admin-signin">${ICONS.lock} UNLOCK DASHBOARD</button>
+      </div>
+      ${msg ? `<div class="note" style="margin-top:1rem">${esc(msg)}</div>` : ''}
+      <div class="note info" style="margin-top:1rem">
+        Running in <b>local demo mode</b>. Connect Supabase credentials in <code>NEXUS_CONFIG</code> to enable secure cloud authentication, file storage and a live database.
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function adminRow(item, type) {
+  const isBook = type === 'books';
+  return `<div class="row ${isBook ? 'bookrow' : ''}">
+    ${coverImg(item, type, 'thumb')}
+    <div class="info">
+      <h4>
+        ${esc(item.title)}
+        ${item.published ? `<span class="badge pub">Published</span>` : `<span class="badge draft">Draft</span>`}
+        ${item.featured ? `<span class="badge feat">Featured</span>` : ''}
+      </h4>
+      <p>${esc(item.category || 'Other')}${isBook && item.author ? ' · ' + esc(item.author) : ''}${!isBook && item.version ? ' · v' + esc(item.version) : ''} · ${fmtDate(item.release_date)}</p>
+    </div>
+    <div class="ops">
+      <a class="btn btn-ghost" href="#/${type.slice(0, -1)}/${esc(item.id)}">${ICONS.eye}View</a>
+      <button class="btn btn-ghost" data-action="admin-edit" data-type="${type}" data-id="${esc(item.id)}">${ICONS.edit}Edit</button>
+      <button class="btn btn-ghost" data-action="toggle-publish" data-type="${type}" data-id="${esc(item.id)}">
+        ${item.published ? 'Unpublish' : 'Publish'}
+      </button>
+      <button class="btn ${item.featured ? 'btn-ok' : 'btn-ghost'}" data-action="toggle-feature" data-type="${type}" data-id="${esc(item.id)}">
+        ${ICONS.star}${item.featured ? 'Featured' : 'Feature'}
+      </button>
+      <button class="btn btn-danger" data-action="delete" data-type="${type}" data-id="${esc(item.id)}">${ICONS.trash}Delete</button>
+    </div>
+  </div>`;
+}
+
+function viewAdmin() {
+  if (!isAdmin()) return adminLogin();
+
+  const games = state.games, books = state.books;
+  const all = [...games, ...books];
+  const tab = state.adminTab;
+  const listing = tab === 'games' ? games : books;
+  const sorted = listing.slice().sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at));
+
+  const stats = [
+    ['Total games', games.length],
+    ['Total books', books.length],
+    ['Published', all.filter(i => i.published).length],
+    ['Drafts', all.filter(i => !i.published).length],
+    ['Featured', all.filter(i => i.featured).length]
+  ];
+
+  return `<div class="view"><div class="wrap"><section>
+    <div class="admin-head">
+      <div>
+        <div class="eyebrow">Control Room</div>
+        <h2 style="font-size:clamp(1.6rem,3.2vw,2.3rem)">ADMIN DASHBOARD</h2>
+        <div class="who">Signed in as <b>${esc(state.user.email || 'administrator')}</b></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" data-action="retry">${ICONS.spark}Refresh data</button>
+        <button class="btn btn-danger" data-action="admin-signout">${ICONS.logout}Sign out</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      ${stats.map(([label, n]) => `<div class="stat"><span>${label}</span><b>${n}</b></div>`).join('')}
+    </div>
+
+    <div class="admin-bar">
+      <div class="tabs">
+        <button class="${tab === 'games' ? 'active' : ''}" data-action="admin-tab" data-tab="games">Games · ${games.length}</button>
+        <button class="${tab === 'books' ? 'active' : ''}" data-action="admin-tab" data-tab="books">Books · ${books.length}</button>
+      </div>
+      <button class="btn btn-primary" data-action="admin-add" data-type="${tab}">
+        ${ICONS.plus} ADD ${tab === 'games' ? 'GAME' : 'BOOK'}
+      </button>
+    </div>
+
+    ${state.error ? errorState(state.error) : ''}
+
+    ${sorted.length
+      ? `<div class="rows">${sorted.map(i => adminRow(i, tab)).join('')}</div>`
+      : `<div class="empty">
+           <div class="ico">${tab === 'games' ? ICONS.game : ICONS.book}</div>
+           <h3>${tab === 'games' ? 'NO GAMES YET' : 'NO BOOKS YET'}</h3>
+           <p>${tab === 'games' ? 'Your next creation will appear here.' : 'Your next story will appear here.'}</p>
+           <button class="btn btn-primary" data-action="admin-add" data-type="${tab}">${ICONS.plus} Add the first ${tab === 'games' ? 'game' : 'book'}</button>
+         </div>`}
+  </section></div></div>`;
+}
+
+/* ================= Editor ================= */
+const editorState = { file: null, pdf: null, coverPreview: null };
+
+function fieldLabel(t, hint) {
+  return `<label>${esc(t)}${hint ? ` <span style="text-transform:none;letter-spacing:0;color:var(--dim);font-weight:500">${esc(hint)}</span>` : ''}</label>`;
+}
+
+function openEditor(type, id) {
+  const isBook = type === 'books';
+  const item = id ? state[type].find(i => i.id === id) : null;
+  const v = item || {};
+  editorState.file = null;
+  editorState.pdf = null;
+  editorState.coverPreview = v.cover_url || coverFallback(v.title || (isBook ? 'New Book' : 'New Game'), type);
+
+  const cats = isBook ? BOOK_CATS : GAME_CATS;
+  const title = item ? `EDIT ${isBook ? 'BOOK' : 'GAME'}` : `ADD NEW ${isBook ? 'BOOK' : 'GAME'}`;
+
+  const html = `
+    <div class="mhead">
+      <h3>${title}</h3>
+      <button class="x" data-action="close-modal" aria-label="Close">${ICONS.x}</button>
+    </div>
+    <div class="mbody">
+      <form class="formgrid" id="editor-form" novalidate>
+        <div class="field">
+          ${fieldLabel(isBook ? 'Book Title' : 'Game Name')}
+          <input type="text" name="title" required value="${esc(v.title || '')}" placeholder="${isBook ? 'e.g. The Glass Horizon' : 'e.g. Neon Run'}">
+        </div>
+
+        <div class="field">
+          ${fieldLabel('Description')}
+          <textarea name="description" placeholder="Short summary shown on cards and the detail page…">${esc(v.description || '')}</textarea>
+        </div>
+
+        <div class="frow">
+          <div class="field">
+            ${fieldLabel('Category')}
+            <select name="category">
+              ${cats.map(c => `<option ${v.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          ${isBook
+            ? `<div class="field">${fieldLabel('Author')}<input type="text" name="author" value="${esc(v.author || '')}" placeholder="Abdlerhman Mohamed"></div>`
+            : `<div class="field">${fieldLabel('Version')}<input type="text" name="version" value="${esc(v.version || '1.0')}" placeholder="1.0"></div>`}
+        </div>
+
+        <div class="field">
+          ${fieldLabel('Release Date')}
+          <input type="date" name="release_date" value="${v.release_date ? String(v.release_date).slice(0, 10) : ''}">
+        </div>
+
+        <div class="field">
+          ${fieldLabel('Cover Image', 'upload or paste a URL')}
+          <div class="upload">
+            <img class="prev" id="ed-cover-prev" src="${esc(editorState.coverPreview)}" alt="Cover preview">
+            <label class="btn btn-ghost btn-sm">${ICONS.upload}Choose file
+              <input type="file" accept="image/*" id="ed-cover-file">
+            </label>
+            <button type="button" class="btn btn-ghost btn-sm" data-action="clear-cover">Clear</button>
+          </div>
+          <input type="url" name="cover_url" id="ed-cover-url" value="${esc(v.cover_url && v.cover_url.startsWith('data:') ? '' : (v.cover_url || ''))}" placeholder="https://…/cover.jpg" style="margin-top:8px">
+          <div class="hint">Recommended ratio: games 16:10 · books 3:4</div>
+        </div>
+
+        <div class="field">
+          ${fieldLabel(isBook ? 'Read URL' : 'Game URL', isBook ? 'PDF or HTML reader link' : 'path/to/game/index.html')}
+          <input type="text" name="content_url" value="${esc(v.content_url || '')}" placeholder="${isBook ? 'books/my-book/index.html or https://…/book.pdf' : 'games/my-game/index.html'}">
+          <div class="hint">${isBook ? 'Opens inside the built-in reader.' : 'Opens inside the built-in player.'}</div>
+        </div>
+
+        ${isBook ? `
+        <div class="field">
+          ${fieldLabel('PDF File', 'optional upload')}
+          <div class="upload">
+            <label class="btn btn-ghost btn-sm">${ICONS.upload}Upload PDF
+              <input type="file" accept="application/pdf" id="ed-pdf-file">
+            </label>
+            <span class="hint" id="ed-pdf-label">${v.content_url && v.content_url.startsWith('data:') ? 'PDF stored' : 'No file selected'}</span>
+          </div>
+          <div class="hint">Uploading a PDF sets it as the Read URL automatically.</div>
+        </div>` : ''}
+
+        <div class="field">
+          ${fieldLabel('Download URL', 'optional')}
+          <input type="url" name="download_url" value="${esc(v.download_url || '')}" placeholder="https://…/file.zip">
+        </div>
+
+        <div class="frow">
+          <label class="switch">
+            <span>Featured<small>Show in homepage spotlight</small></span>
+            <input type="checkbox" name="featured" ${v.featured ? 'checked' : ''}>
+            <span class="knob"></span>
+          </label>
+          <label class="switch">
+            <span>Published<small>Visible to all visitors</small></span>
+            <input type="checkbox" name="published" ${v.published ? 'checked' : ''}>
+            <span class="knob"></span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" data-action="close-modal">CANCEL</button>
+          <button type="button" class="btn btn-ghost" data-action="save-item" data-type="${type}" data-id="${esc(v.id || '')}" data-mode="draft">SAVE AS DRAFT</button>
+          <button type="button" class="btn btn-primary" data-action="save-item" data-type="${type}" data-id="${esc(v.id || '')}" data-mode="publish">SAVE &amp; PUBLISH</button>
+        </div>
+      </form>
+    </div>`;
+  openModal(html);
+}
+
+function openConfirmDelete(type, id) {
+  const item = state[type].find(i => i.id === id);
+  if (!item) return;
+  const html = `
+    <div class="mhead">
+      <h3>DELETE ITEM</h3>
+      <button class="x" data-action="close-modal" aria-label="Close">${ICONS.x}</button>
+    </div>
+    <div class="mbody">
+      <p style="color:var(--muted);margin-bottom:1.2rem">
+        Are you sure you want to delete <b style="color:var(--text)">${esc(item.title)}</b>? This action cannot be undone.
+      </p>
+      <div class="form-actions" style="border-top:0;padding-top:0">
+        <button class="btn btn-ghost" data-action="close-modal">CANCEL</button>
+        <button class="btn btn-danger" data-action="confirm-delete" data-type="${type}" data-id="${esc(id)}">DELETE</button>
+      </div>
+    </div>`;
+  openModal(html, 'small');
+}
+
+function openPlayer(type, id) {
+  const item = state[type].find(i => i.id === id);
+  if (!item) { toast('This item is no longer available.', 'err'); return; }
+  const isBook = type === 'books';
+  const url = item.content_url;
+
+  const head = `<div class="mhead">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <span class="chip">${isBook ? 'Reader' : 'Player'}</span>
+        <strong style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44vw">${esc(item.title)}</strong>
+      </div>
+      <div class="grp">
+        ${url ? `<a class="btn btn-ghost btn-sm" href="${esc(url)}" target="_blank" rel="noopener">${ICONS.ext}Open</a>` : ''}
+        ${item.download_url ? `<a class="btn btn-ghost btn-sm" href="${esc(item.download_url)}" target="_blank" rel="noopener">${ICONS.dl}Download</a>` : ''}
+        <button class="x" data-action="close-modal" aria-label="Close">${ICONS.x}</button>
+      </div>
+    </div>`;
+
+  if (!url) {
+    openModal(`${head}
+      <div class="mbody">
+        <div class="player-fallback">
+          ${ICONS.alert}
+          <h3>CONTENT NOT LINKED YET</h3>
+          <p>This ${isBook ? 'book' : 'game'} does not have a ${isBook ? 'reader' : 'play'} URL configured yet.${isAdmin() ? ' Add one from the admin dashboard.' : ' Please check back soon.'}</p>
+          ${item.download_url ? `<a class="btn btn-primary" href="${esc(item.download_url)}" target="_blank" rel="noopener">${ICONS.dl}Download instead</a>` : ''}
+          ${isAdmin() ? `<button class="btn btn-ghost" data-action="admin-edit" data-type="${type}" data-id="${esc(item.id)}">${ICONS.edit}Edit item</button>` : ''}
+        </div>
+      </div>`, 'small');
+    return;
+  }
+
+  openModal(`${head}
+    <div class="mbody">
+      <iframe src="${esc(url)}" title="${esc(item.title)}" allow="fullscreen; autoplay; clipboard-read; clipboard-write" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-pointer-lock"></iframe>
+    </div>`, 'player');
+}
+
+/* ================= Editor save ================= */
+async function readForm() {
+  const form = $('#editor-form');
+  const data = {};
+  if (!form) return data;
+  $$('input[name], textarea[name], select[name]', form).forEach(el => {
+    if (el.type === 'checkbox') data[el.name] = el.checked;
+    else data[el.name] = el.value.trim();
+  });
+  return data;
+}
+
+async function saveItem(type, id, mode, btn) {
+  const form = $('#editor-form');
+  const titleEl = form ? form.querySelector('[name=title]') : null;
+  if (!titleEl || !titleEl.value.trim()) {
+    if (titleEl) titleEl.focus();
+    toast(type === 'books' ? 'A book title is required.' : 'A game name is required.', 'err');
+    return;
+  }
+  if (btn) btn.classList.add('loading');
+  try {
+    const data = await readForm();
+
+    if (editorState.file) {
+      toast('Uploading cover…');
+      data.cover_url = await db.upload(editorState.file, 'covers');
+    }
+    if (editorState.pdf) {
+      toast('Uploading PDF…');
+      data.content_url = await db.upload(editorState.pdf, 'books');
+    }
+
+    data.id = id || undefined;
+    data.featured = !!data.featured;
+    data.published = mode === 'publish';
+
+    const saved = await db.save(type, data);
+    await loadData();
+
+    if (saved && state[type].every(i => i.id !== saved.id)) state[type].unshift(saved);
+    state.adminTab = type;
+    closeModal();
+    render();
+    toast(mode === 'publish'
+      ? `${type === 'books' ? 'Book' : 'Game'} published successfully.`
+      : 'Saved as draft.', 'ok');
+  } catch (e) {
+    toast(e.message || 'Unable to save this item.', 'err', 5000);
+  } finally {
+    if (btn) btn.classList.remove('loading');
+  }
+}
+
+async function togglePublish(type, id) {
+  const item = state[type].find(i => i.id === id);
+  if (!item) return;
+  try {
+    const updated = await db.save(type, { id, published: !item.published });
+    await loadData();
+    render();
+    toast(updated.published ? 'Item published.' : 'Item moved to drafts.', 'ok');
+  } catch (e) { toast(e.message || 'Update failed.', 'err'); }
+}
+
+async function toggleFeature(type, id) {
+  const item = state[type].find(i => i.id === id);
+  if (!item) return;
+  try {
+    const updated = await db.save(type, { id, featured: !item.featured });
+    await loadData();
+    render();
+    toast(updated.featured ? 'Marked as featured.' : 'Removed from featured.', 'ok');
+  } catch (e) { toast(e.message || 'Update failed.', 'err'); }
+}
+
+async function confirmDelete(type, id) {
+  try {
+    await db.remove(type, id);
+    await loadData();
+    closeModal();
+    render();
+    toast('Item deleted.', 'ok');
+  } catch (e) { toast(e.message || 'Delete failed.', 'err'); }
+}
+
+async function adminSignIn() {
+  const email = ($('#ad-email') || {}).value || '';
+  const pass = ($('#ad-pass') || {}).value || '';
+  if (!pass) { toast('Enter the administrator passphrase.', 'err'); return; }
+  try {
+    state.user = await db.signIn(email.trim(), pass);
+    if (!state.user || !state.user.admin) throw new Error('This account does not have administrator rights.');
+    updateModePill();
+    render();
+    toast('Welcome back, administrator.', 'ok');
+  } catch (e) {
+    const box = $('.login-wrap');
+    toast(e.message || 'Sign in failed.', 'err');
+    if (box) {
+      let note = $('.login-error', box);
+      if (!note) {
+        note = document.createElement('div');
+        note.className = 'note login-error';
+        note.style.marginTop = '1rem';
+        box.appendChild(note);
+      }
+      note.textContent = e.message || 'Sign in failed.';
+    }
+  }
+}
+
+async function adminSignOut() {
+  try { await db.signOut(); } catch (e) {}
+  state.user = null;
+  updateModePill();
+  location.hash = '#/';
+  render();
+  toast('Signed out.', 'ok');
+}
+
+/* ================= Mode pill ================= */
+function updateModePill() {
+  const p = $('#mode-pill');
+  if (!p) return;
+  if (db.mode === 'demo') {
+    p.className = 'modepill demo';
+    p.innerHTML = '<i></i>Local Mode';
+  } else {
+    p.className = 'modepill';
+    p.innerHTML = `<i></i>Cloud · ${isAdmin() ? 'Admin Active' : 'Public'}`;
+  }
+}
+
+/* ================= Router ================= */
+function parseRoute() {
+  const h = (location.hash || '#/').replace(/^#/, '') || '/';
+  const parts = h.split('/').filter(Boolean);
+  return { path: '/' + parts.join('/'), parts };
+}
+
+function setActiveNav(path) {
+  const base = '/' + (path.split('/')[1] || '');
+  $$('#nav-links a, #drawer a').forEach(a => {
+    a.classList.toggle('active', a.dataset.route === (base === '/' ? '/' : base));
+  });
+}
+
+function render() {
+  const app = $('#app');
+  if (!app) return;
+  const { parts } = parseRoute();
+  const seg = parts[0] || '';
+  let html = '';
+
+  try {
+    if (!seg) html = viewHome();
+    else if (seg === 'games') html = viewLibrary('games');
+    else if (seg === 'books') html = viewLibrary('books');
+    else if (seg === 'game' && parts[1]) html = viewDetail('games', parts[1]);
+    else if (seg === 'book' && parts[1]) html = viewDetail('books', parts[1]);
+    else if (seg === 'search') html = viewSearch(state.filters.searchQuery || '');
+    else if (seg === 'about') html = viewAbout();
+    else if (seg === 'admin') html = viewAdmin();
+    else html = viewHome();
+  } catch (e) {
+    console.error(e);
+    html = `<div class="view"><div class="wrap"><section>${errorState('Something went wrong while rendering this page.')}</section></div></div>`;
+  }
+
+  app.innerHTML = html;
+  setActiveNav('/' + seg);
+  updateModePill();
+}
+
+function navigate() {
+  closeModal();
+  $('#drawer').classList.remove('open');
+  const b = $('#burger'); if (b) b.classList.remove('open');
+  render();
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+/* ================= Events ================= */
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('[data-action]');
+  if (!t) return;
+  const action = t.dataset.action;
+
+  switch (action) {
+    case 'nav-toggle': {
+      const d = $('#drawer'), b = $('#burger');
+      const open = d.classList.toggle('open');
+      b.classList.toggle('open', open);
+      b.setAttribute('aria-expanded', String(open));
+      break;
+    }
+    case 'shuffle':
+      shuffleAtmosphere(false);
+      toast('Atmosphere reshuffled.', 'ok', 1800);
+      break;
+    case 'open':
+      openPlayer(t.dataset.type, t.dataset.id);
+      break;
+    case 'close-modal':
+      closeModal();
+      break;
+    case 'retry':
+      await loadData();
+      render();
+      toast('Data refreshed.', 'ok', 1800);
+      break;
+    case 'filter': {
+      const type = t.dataset.type;
+      state.filters[type].cat = t.dataset.cat;
+      const r = $('#lib-results');
+      if (r) r.innerHTML = libraryResults(type);
+      $$('.fbtn', t.parentElement).forEach(b => b.classList.toggle('active', b === t));
+      break;
+    }
+    case 'clear-filter': {
+      const type = t.dataset.type;
+      state.filters[type] = { q: '', cat: 'All' };
+      render();
+      break;
+    }
+    case 'admin-add':
+      openEditor(t.dataset.type || state.adminTab, null);
+      break;
+    case 'admin-edit':
+      openEditor(t.dataset.type, t.dataset.id);
+      break;
+    case 'admin-tab':
+      state.adminTab = t.dataset.tab;
+      render();
+      break;
+    case 'admin-signin':
+      await adminSignIn();
+      break;
+    case 'admin-signout':
+      await adminSignOut();
+      break;
+    case 'save-item':
+      await saveItem(t.dataset.type, t.dataset.id || null, t.dataset.mode, t);
+      break;
+    case 'delete':
+      openConfirmDelete(t.dataset.type, t.dataset.id);
+      break;
+    case 'confirm-delete':
+      await confirmDelete(t.dataset.type, t.dataset.id);
+      break;
+    case 'toggle-publish':
+      await togglePublish(t.dataset.type, t.dataset.id);
+      break;
+    case 'toggle-feature':
+      await toggleFeature(t.dataset.type, t.dataset.id);
+      break;
+    case 'clear-cover': {
+      editorState.file = null;
+      const url = $('#ed-cover-url'); if (url) url.value = '';
+      const prev = $('#ed-cover-prev'); if (prev) prev.src = coverFallback('New', state.adminTab);
+      break;
+    }
+  }
+});
+
+/* Cover / PDF file inputs */
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (el.id === 'ed-cover-file' && el.files && el.files[0]) {
+    editorState.file = el.files[0];
+    const prev = $('#ed-cover-prev');
+    if (prev) prev.src = URL.createObjectURL(el.files[0]);
+  }
+  if (el.id === 'ed-pdf-file' && el.files && el.files[0]) {
+    editorState.pdf = el.files[0];
+    const lbl = $('#ed-pdf-label');
+    if (lbl) lbl.textContent = el.files[0].name;
+    toast('PDF selected — it will upload on save.', '', 2200);
+  }
+});
+
+/* Live search */
+let searchTimer = null;
+document.addEventListener('input', (e) => {
+  const el = e.target;
+  if (el.id === 'lib-q') {
+    const type = el.closest('#lib-search') ? (location.hash.indexOf('books') > -1 ? 'books' : 'games') : 'games';
+    state.filters[type].q = el.value;
+    const wrap = $('#lib-search');
+    if (wrap) wrap.classList.add('busy');
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const r = $('#lib-results');
+      if (r) r.innerHTML = libraryResults(type);
+      if (wrap) wrap.classList.remove('busy');
+    }, 180);
+  }
+  if (el.id === 'g-q') {
+    state.filters.searchQuery = el.value;
+    const wrap = $('#g-search');
+    if (wrap) wrap.classList.add('busy');
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const r = $('#g-results');
+      if (r) r.innerHTML = searchResults(el.value);
+      if (wrap) wrap.classList.remove('busy');
+    }, 160);
+  }
+});
+
+/* Enter key submits admin login */
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  if (e.target && e.target.id === 'ad-pass') adminSignIn();
+});
+
+addEventListener('hashchange', navigate);
+
+/* ================= Boot ================= */
+async function boot() {
+  shuffleAtmosphere(true);
+  db = createAdapter();
+
+  try { await db.init(); } catch (e) { console.warn(e); }
+
+  try {
+    state.user = await db.getSession();
+  } catch (e) { state.user = null; }
+
+  updateModePill();
+  await loadData();
+  render();
+
+  /* Failsafe: never leave the loader on screen. */
+  const hide = () => $('#loader').classList.add('hide');
+  setTimeout(hide, 700);
+  setTimeout(hide, 2600);
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
