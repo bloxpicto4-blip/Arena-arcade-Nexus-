@@ -566,15 +566,6 @@ footer .credit b{color:var(--text);font-weight:700}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 </style>
-
-<style>
-.media-player{width:100%;max-height:70vh;border-radius:16px;background:#000;display:block}
-.audio-player{width:100%;margin:12px 0 4px}
-.media-card .cover{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(124,92,255,.25),rgba(0,220,255,.12));overflow:hidden}
-.media-card .cover img{width:100%;height:100%;object-fit:cover}
-.media-card .cover .media-icon{font-size:2.8rem;opacity:.85}
-.media-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
-</style>
 </head>
 <body>
 
@@ -620,8 +611,6 @@ footer .credit b{color:var(--text);font-weight:700}
       <a href="#/" data-route="/">Home</a>
       <a href="#/games" data-route="/games">Games</a>
       <a href="#/books" data-route="/books">Books</a>
-      <a href="#/podcasts" data-route="/podcasts">Podcast</a>
-      <a href="#/music" data-route="/music">Music</a>
       <a href="#/about" data-route="/about">About</a>
       <a href="#/search" data-route="/search">Search</a>
       <a href="#/admin" data-route="/admin" class="admin-link">
@@ -643,8 +632,6 @@ footer .credit b{color:var(--text);font-weight:700}
   <a href="#/" data-route="/">Home</a>
   <a href="#/games" data-route="/games">Games</a>
   <a href="#/books" data-route="/books">Books</a>
-  <a href="#/podcasts" data-route="/podcasts">Podcast</a>
-  <a href="#/music" data-route="/music">Music</a>
   <a href="#/about" data-route="/about">About</a>
   <a href="#/search" data-route="/search">Search</a>
   <a href="#/admin" data-route="/admin" style="color:var(--dim)">Admin Panel</a>
@@ -695,12 +682,10 @@ footer .credit b{color:var(--text);font-weight:700}
 const NEXUS_CONFIG = {
   // Paste your Supabase Project URL and PUBLIC anon key here.
   // Never put the service_role key in this file.
-  supabaseUrl: 'PASTE_YOUR_SUPABASE_URL_HERE',
-  supabaseAnonKey: 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE',
+  supabaseUrl: 'https://wtzikubbccnmgxpknqxc.supabase.co',
+  supabaseAnonKey: 'sb_publishable_H3i7ijfP_r0lGR0ZE3Eo-w_wSkVUaqG',
   gamesTable: 'games',
   booksTable: 'books',
-  podcastsTable: 'podcasts',
-  musicTable: 'music',
   adminsTable: 'admins',
   storageBucket: 'nexus-media'
 };
@@ -715,8 +700,6 @@ DATABASE SETUP:
 1) Put your Supabase Project URL in supabaseUrl.
 2) Put only the public anon key in supabaseAnonKey.
 3) Keep the existing games/books/admins tables and required columns.
-4) Create podcasts and music tables using the supplied SQL setup file.
-5) Keep the nexus-media Storage bucket for uploads.
 4) Create the nexus-media Storage bucket for dashboard uploads.
 */
 
@@ -969,31 +952,26 @@ class SupabaseAdapter {
       if (location.hash.indexOf('#/admin') === 0) render();
     });
   }
-  tableFor(type) {
-    return type === 'games' ? this.cfg.gamesTable : type === 'books' ? this.cfg.booksTable : type === 'podcasts' ? this.cfg.podcastsTable : this.cfg.musicTable;
-  }
   async list(type) {
-    const { data, error } = await this.client.from(this.tableFor(type)).select('*').order('created_at', { ascending: false });
+    const { data, error } = await this.client.from(type === 'games' ? this.cfg.gamesTable : this.cfg.booksTable).select('*').order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
     return data || [];
   }
   async save(type, item) {
-    const allowed = ['id','title','description','category','version','author','release_date','cover_url','content_url','download_url','featured','published','duration','artist','album'];
+    const allowed = ['id','title','description','category','version','author','release_date','cover_url','content_url','download_url','featured','published'];
     const row = {};
     for (const k of allowed) if (k in item) row[k] = item[k];
     if (type === 'games') delete row.author;
     if (type === 'books') delete row.version;
-    if (type !== 'music') { delete row.artist; delete row.album; }
-    if (type !== 'podcasts') delete row.author;
     if (!row.id) delete row.id;
     if (row.release_date === '') row.release_date = null;
     row.updated_at = new Date().toISOString();
-    const { data, error } = await this.client.from(this.tableFor(type)).upsert(row).select().single();
+    const { data, error } = await this.client.from(type === 'games' ? this.cfg.gamesTable : this.cfg.booksTable).upsert(row).select().single();
     if (error) throw new Error(error.message);
     return data;
   }
   async remove(type, id) {
-    const { error } = await this.client.from(this.tableFor(type)).delete().eq('id', id);
+    const { error } = await this.client.from(type === 'games' ? this.cfg.gamesTable : this.cfg.booksTable).delete().eq('id', id);
     if (error) throw new Error(error.message);
   }
   async upload(file, folder = 'covers') {
@@ -1037,20 +1015,21 @@ const state = {
   adminTab: 'games',
   filters: { games: { q: '', cat: 'All' }, books: { q: '', cat: 'All' } }
 };
-state.podcasts = []; state.music = [];
-state.filters.podcasts = { q: '', cat: 'All' };
-state.filters.music = { q: '', cat: 'All' };
 
 async function loadData() {
-  state.loading = true; state.error = null;
+  state.loading = true;
+  state.error = null;
   try {
-    const [g,b,p,m] = await Promise.all([db.list('games'),db.list('books'),db.list('podcasts'),db.list('music')]);
-    state.games=g||[]; state.books=b||[]; state.podcasts=p||[]; state.music=m||[]; state.loaded=true;
-  } catch(e) {
-    state.error=e.message||'Unable to reach the content service.';
-    state.games=state.games||[]; state.books=state.books||[]; state.podcasts=state.podcasts||[]; state.music=state.music||[];
+    const [g, b] = await Promise.all([db.list('games'), db.list('books')]);
+    state.games = g || [];
+    state.books = b || [];
+    state.loaded = true;
+  } catch (e) {
+    state.error = e.message || 'Unable to reach the content service.';
+    state.games = state.games || [];
+    state.books = state.books || [];
   }
-  state.loading=false;
+  state.loading = false;
 }
 
 const isAdmin = () => !!(state.user && state.user.admin);
@@ -1636,7 +1615,7 @@ function fieldLabel(t, hint) {
   return `<label>${esc(t)}${hint ? ` <span style="text-transform:none;letter-spacing:0;color:var(--dim);font-weight:500">${esc(hint)}</span>` : ''}</label>`;
 }
 
-function legacyOpenEditor(type, id) {
+function openEditor(type, id) {
   const isBook = type === 'books';
   const item = id ? state[type].find(i => i.id === id) : null;
   const v = item || {};
@@ -1929,70 +1908,9 @@ function updateModePill() {
   } else {
     p.className = 'modepill';
     p.innerHTML = `<i></i>Cloud · ${isAdmin() ? 'Admin Active' : 'Public'}`;
- 
-async function saveItem(type,id,mode,btn){
-  const form=$('#editor-form'); const titleEl=form&&form.querySelector('[name=title]'); if(!titleEl||!titleEl.value.trim()){toast('A title is required.','err');return;}
-  if(btn)btn.classList.add('loading');
-  try{
-    const data=await readForm(); data.id=id||undefined; data.published=mode==='publish'; data.featured=false;
-    if(MEDIA_TYPES.includes(type)){
-      if(editorState.mediaFile){toast('Uploading media…'); data.content_url=await db.upload(editorState.mediaFile,type);}
-      if(!data.content_url) throw new Error('Choose a media file or paste a media URL.');
-      const saved=await db.save(type,data); await loadData(); state.adminTab=type; closeModal(); render(); toast(`${mediaLabel(type)} saved successfully.`,'ok'); return;
-    }
-    if(editorState.file){data.cover_url=await db.upload(editorState.file,'covers');}
-    if(editorState.pdf){data.content_url=await db.upload(editorState.pdf,'books');}
-    const saved=await db.save(type,data); await loadData(); state.adminTab=type; closeModal(); render(); toast(`${type==='books'?'Book':'Game'} saved successfully.`,'ok');
-  }catch(e){toast(e.message||'Unable to save.','err',5000);}finally{if(btn)btn.classList.remove('loading');}
-}
-function openConfirmDelete(type,id){const item=(state[type]||[]).find(i=>i.id===id);if(!item)return;openModal(`<div class="mhead"><h3>DELETE ITEM</h3><button class="x" data-action="close-modal">${ICONS.x}</button></div><div class="mbody"><p>Delete <b>${esc(item.title)}</b>?</p><div class="form-actions"><button class="btn btn-ghost" data-action="close-modal">CANCEL</button><button class="btn btn-danger" data-action="confirm-delete" data-type="${type}" data-id="${esc(id)}">DELETE</button></div></div>`,'small');}
-async function togglePublish(type,id){const item=(state[type]||[]).find(i=>i.id===id);if(!item)return;try{await db.save(type,{id,published:!item.published});await loadData();render();}catch(e){toast(e.message,'err');}}
-async function toggleFeature(type,id){const item=(state[type]||[]).find(i=>i.id===id);if(!item)return;try{await db.save(type,{id,featured:!item.featured});await loadData();render();}catch(e){toast(e.message,'err');}}
-async function confirmDelete(type,id){try{await db.remove(type,id);await loadData();closeModal();render();toast('Deleted.','ok');}catch(e){toast(e.message,'err');}}
- }
-}
-
-
-/* ================= Podcast + Music extension ================= */
-const MEDIA_TYPES = ['podcasts','music'];
-const mediaLabel = t => t === 'podcasts' ? 'Podcast' : 'Music';
-const mediaIcon = t => t === 'podcasts' ? '🎙️' : '🎵';
-function mediaItems(type){ return pub(state[type] || []); }
-function mediaCard(item,type){
-  const cover=item.cover_url ? `<img src="${esc(item.cover_url)}" alt="${esc(item.title)}">` : `<div class="media-icon">${mediaIcon(type)}</div>`;
-  return `<article class="card media-card" data-id="${esc(item.id)}"><div class="cover">${cover}</div><div class="card-body"><div class="eyebrow">${mediaLabel(type)}</div><h3>${esc(item.title)}</h3><p>${esc(item.description||'')}</p><div class="media-meta"><span class="badge type">${esc(item.category||'Other')}</span>${item.artist?`<span class="badge">${esc(item.artist)}</span>`:''}</div><button class="btn btn-primary btn-block" data-action="open" data-type="${type}" data-id="${esc(item.id)}">${type==='music'?'▶ PLAY':'▶ WATCH'}</button></div></article>`;
-}
-function viewMediaLibrary(type){
-  const all=state[type]||[], list=mediaItems(type), q=(state.filters[type]?.q||'').toLowerCase();
-  const filtered=list.filter(i=>!q||[i.title,i.description,i.category,i.artist].join(' ').toLowerCase().includes(q));
-  return `<div class="view"><div class="wrap"><section><div class="sec-head"><div><div class="eyebrow">NEXUS MEDIA</div><h2>${mediaLabel(type)}</h2><p>${type==='podcasts'?'Watch podcast episodes directly inside NEXUS HUB.':'Listen to music directly inside NEXUS HUB.'}</p></div></div><div class="searchbox" id="media-search"><input id="media-q" data-media-type="${type}" value="${esc(state.filters[type]?.q||'')}" placeholder="Search ${mediaLabel(type).toLowerCase()}…"></div><div class="grid-cards">${filtered.length?filtered.map(i=>mediaCard(i,type)).join(''):`<div class="empty"><div class="ico">${mediaIcon(type)}</div><h3>NO ${type==='podcasts'?'PODCASTS':'MUSIC'} YET</h3><p>New releases will appear here.</p></div>`}</div></section></div></div>`;
-}
-function openMediaPlayer(type,id){
-  const item=(state[type]||[]).find(i=>i.id===id); if(!item||!item.content_url){toast('This media item has no uploaded file yet.','err');return;}
-  const head=`<div class="mhead"><h3>${esc(item.title)}</h3><button class="x" data-action="close-modal">${ICONS.x}</button></div>`;
-  const body=type==='podcasts'?`<video class="media-player" controls playsinline preload="metadata" src="${esc(item.content_url)}"></video>`:`<audio class="audio-player" controls preload="metadata" src="${esc(item.content_url)}"></audio>`;
-  openModal(`${head}<div class="mbody">${body}<p style="margin-top:1rem;color:var(--muted)">${esc(item.description||'')}</p></div>`,'small');
-}
-function adminRow(item,type){
-  const isBook=type==='books'; const media=MEDIA_TYPES.includes(type);
-  return `<div class="row ${isBook?'bookrow':''}"><div class="thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem">${media?mediaIcon(type):''}</div><div class="info"><h4>${esc(item.title)} ${item.published?'<span class="badge pub">Published</span>':'<span class="badge draft">Draft</span>'}</h4><p>${esc(item.category||'Other')}${item.artist?' · '+esc(item.artist):''}${isBook&&item.author?' · '+esc(item.author):''}${!isBook&&!media&&item.version?' · v'+esc(item.version):''}</p></div><div class="ops"><button class="btn btn-ghost" data-action="admin-edit" data-type="${type}" data-id="${esc(item.id)}">${ICONS.edit}Edit</button><button class="btn btn-ghost" data-action="toggle-publish" data-type="${type}" data-id="${esc(item.id)}">${item.published?'Unpublish':'Publish'}</button><button class="btn btn-danger" data-action="delete" data-type="${type}" data-id="${esc(item.id)}">${ICONS.trash}Delete</button></div></div>`;
-}
-function viewAdmin(){
-  if(!isAdmin()) return adminLogin();
-  const tabs=['games','books','podcasts','music']; const tab=tabs.includes(state.adminTab)?state.adminTab:'games'; const listing=state[tab]||[];
-  return `<div class="view"><div class="wrap"><section><div class="admin-head"><div><div class="eyebrow">Control Room</div><h2>ADMIN DASHBOARD</h2><div class="who">Signed in as <b>${esc(state.user.email||'administrator')}</b></div></div><button class="btn btn-danger" data-action="admin-signout">${ICONS.logout}Sign out</button></div><div class="admin-bar"><div class="frow">${tabs.map(x=>`<button class="${tab===x?'btn btn-primary':'btn btn-ghost'}" data-action="admin-tab" data-tab="${x}">${x==='games'?'Games':x==='books'?'Books':x==='podcasts'?'Podcast':'Music'} · ${(state[x]||[]).length}</button>`).join('')}</div><button class="btn btn-primary" data-action="admin-add" data-type="${tab}">${ICONS.plus} ADD ${mediaLabel(tab).toUpperCase()}</button></div><div class="rows">${listing.length?listing.map(i=>adminRow(i,tab)).join(''):`<div class="empty"><h3>NO ${mediaLabel(tab).toUpperCase()} YET</h3><button class="btn btn-primary" data-action="admin-add" data-type="${tab}">ADD FIRST</button></div>`}</div></section></div></div>`;
-}
-function openEditor(type,id){
-  const media=MEDIA_TYPES.includes(type), isBook=type==='books', item=id?(state[type]||[]).find(i=>i.id===id):null, v=item||{};
-  editorState.file=null; editorState.pdf=null; editorState.mediaFile=null;
-  if(media){
-    const title=item?`EDIT ${mediaLabel(type).toUpperCase()}`:`ADD NEW ${mediaLabel(type).toUpperCase()}`;
-    openModal(`<div class="mhead"><h3>${title}</h3><button class="x" data-action="close-modal">${ICONS.x}</button></div><div class="mbody"><form class="formgrid" id="editor-form"><div class="field">${fieldLabel('Title')}<input name="title" required value="${esc(v.title||'')}" placeholder="${type==='podcasts'?'Episode title':'Song title'}"></div><div class="field">${fieldLabel('Description')}<textarea name="description">${esc(v.description||'')}</textarea></div><div class="field">${fieldLabel(type==='music'?'Artist':'Category')}<input name="${type==='music'?'artist':'category'}" value="${esc(type==='music'?v.artist||'':v.category||'Other')}"></div>${type==='music'?`<div class="field">${fieldLabel('Album')}<input name="album" value="${esc(v.album||'')}"></div>`:''}<div class="field">${fieldLabel(type==='podcasts'?'Video file':'Audio file')}<div class="upload"><label class="btn btn-ghost">${ICONS.upload}Choose file<input type="file" id="ed-media-file" accept="${type==='podcasts'?'video/*':'audio/*'}"></label><span class="hint" id="ed-media-label">${v.content_url?'Current file exists':'No file selected'}</span></div></div><div class="field">${fieldLabel('Or paste media URL')}<input type="url" name="content_url" value="${esc(v.content_url||'')}" placeholder="https://…"></div><div class="field"><label class="switch"><span>Published<small>Visible to everyone</small></span><input type="checkbox" name="published" ${v.published?'checked':''}><span class="knob"></span></label></div><div class="form-actions"><button type="button" class="btn btn-ghost" data-action="close-modal">CANCEL</button><button type="button" class="btn btn-primary" data-action="save-item" data-type="${type}" data-id="${esc(v.id||'')}" data-mode="publish">SAVE &amp; PUBLISH</button></div></form></div>`,'small');
-    return;
   }
-  return originalOpenEditor(type,id);
 }
-const originalOpenEditor = legacyOpenEditor;
+
 /* ================= Router ================= */
 function parseRoute() {
   const h = (location.hash || '#/').replace(/^#/, '') || '/';
@@ -2018,8 +1936,6 @@ function render() {
     if (!seg) html = viewHome();
     else if (seg === 'games') html = viewLibrary('games');
     else if (seg === 'books') html = viewLibrary('books');
-    else if (seg === 'podcasts') html = viewMediaLibrary('podcasts');
-    else if (seg === 'music') html = viewMediaLibrary('music');
     else if (seg === 'game' && parts[1]) html = viewDetail('games', parts[1]);
     else if (seg === 'book' && parts[1]) html = viewDetail('books', parts[1]);
     else if (seg === 'search') html = viewSearch(state.filters.searchQuery || '');
@@ -2063,7 +1979,7 @@ document.addEventListener('click', async (e) => {
       toast('Atmosphere reshuffled.', 'ok', 1800);
       break;
     case 'open':
-      if (MEDIA_TYPES.includes(t.dataset.type)) openMediaPlayer(t.dataset.type, t.dataset.id); else openPlayer(t.dataset.type, t.dataset.id);
+      openPlayer(t.dataset.type, t.dataset.id);
       break;
     case 'close-modal':
       closeModal();
@@ -2135,12 +2051,6 @@ document.addEventListener('change', (e) => {
     const prev = $('#ed-cover-prev');
     if (prev) prev.src = URL.createObjectURL(el.files[0]);
   }
-  if (el.id === 'ed-media-file' && el.files && el.files[0]) {
-    editorState.mediaFile = el.files[0];
-    const lbl = $('#ed-media-label');
-    if (lbl) lbl.textContent = el.files[0].name;
-    toast('Media selected — it will upload on save.', '', 2200);
-  }
   if (el.id === 'ed-pdf-file' && el.files && el.files[0]) {
     editorState.pdf = el.files[0];
     const lbl = $('#ed-pdf-label');
@@ -2177,9 +2087,6 @@ document.addEventListener('input', (e) => {
     }, 160);
   }
 });
-
-
-document.addEventListener('input',(e)=>{const el=e.target;if(el.id==='media-q'){const type=el.dataset.mediaType;state.filters[type].q=el.value;const wrap=el.closest('section');if(wrap){const grid=wrap.querySelector('.grid-cards');const q=el.value.toLowerCase();const list=mediaItems(type).filter(i=>[i.title,i.description,i.category,i.artist].join(' ').toLowerCase().includes(q));if(grid)grid.innerHTML=list.length?list.map(i=>mediaCard(i,type)).join(''):`<div class="empty"><h3>NO RESULTS</h3></div>`;}}});
 
 /* Enter key submits admin login */
 document.addEventListener('keydown', (e) => {
